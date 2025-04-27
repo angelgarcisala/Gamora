@@ -21,3 +21,18 @@ export default {
 
     plugins: [forms, typography],
 };
+module.exports = {
+    content: [
+      './resources/**/*.blade.php',
+      './resources/**/*.js',
+      './resources/**/*.vue',
+    ],
+    theme: {
+      extend: {
+        backgroundImage: {
+          'steam-gradient': 'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(32,9,66,1) 30%, rgba(56,25,99,1) 50%, rgba(32,9,66,1) 70%, rgba(0,0,0,1) 100%)',
+        }
+      }
+    },
+    plugins: [],
+  }

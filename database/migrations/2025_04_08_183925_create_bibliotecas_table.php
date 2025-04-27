@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('bibliotecas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("usuario_id")->constrained()->cascadeOnDelete()->unique();
+            $table->foreignId("user_id")->constrained()->cascadeOnDelete()->unique();
             $table->date("fecha_adquisicion");
             $table->timestamps();
         });

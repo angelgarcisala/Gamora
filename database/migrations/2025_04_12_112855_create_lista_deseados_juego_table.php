@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lista_deseados_juego', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("lista_deseado_id")->constrained()->cascadeOnDelete();
+            $table->foreignId("lista_deseados_id")->constrained()->cascadeOnDelete();
             $table->foreignId("juego_id")->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

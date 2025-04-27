@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Juego;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,10 @@ class ValoracionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'juego_id' => Juego::factory(),
+            'puntuacion' => fake()->numberBetween(1, 5),
+            'comentario' => fake()->sentence(10),
         ];
     }
 }

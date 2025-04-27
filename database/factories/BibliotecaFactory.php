@@ -20,7 +20,6 @@ class BibliotecaFactory extends Factory
     {
         return [
             'user_id' => User::all()->random()->id,
-            'juego_id' => Juego::all()->random()->id,
             'fecha_adquisicion' => fake()->dateTimeBetween('-5 years', 'now'),
         ];
     }

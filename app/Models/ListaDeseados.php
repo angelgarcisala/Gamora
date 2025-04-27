@@ -19,6 +19,6 @@ class ListaDeseados extends Model
     }
 
     public function juegos(): BelongsToMany{
-        return $this->belongsToMany(Juego::class);
+        return $this->belongsToMany(Juego::class, 'lista_deseados_juego');
     }
 }

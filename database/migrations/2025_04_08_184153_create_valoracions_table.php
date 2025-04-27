@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer("puntuacion");
             $table->string("comentario")->nullable();
-            $table->foreignId("usuario_id")->constrained()->cascadeOnDelete();
+            $table->foreignId("user_id")->constrained()->cascadeOnDelete();
             $table->foreignId("juego_id")->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
