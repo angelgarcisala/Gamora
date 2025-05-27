@@ -18,6 +18,9 @@ return new class extends Migration
             $table->date("fecha_lanzamiento")->nullable();
             $table->string("desarrollador");
             $table->string("editor");
+            $table->float("precio");
+            $table->string("url_descarga")->nullable();
+            $table->string('nombre_ejecutable')->nullable();
             $table->timestamps();
         });
     }

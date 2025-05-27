@@ -12,7 +12,7 @@ class Juego extends Model
     /** @use HasFactory<\Database\Factories\JuegoFactory> */
     use HasFactory;
 
-    protected $fillable = ['titulo', 'descripcion', 'fecha_lanzamiento', 'desarrollador', 'editor'];
+    protected $fillable = ['titulo', 'descripcion', 'fecha_lanzamiento', 'desarrollador', 'editor', 'precio', 'url_descarga', 'nombre_ejecutable'];
 
     public function bibliotecas(): BelongsToMany {
         return $this->belongsToMany(Biblioteca::class);

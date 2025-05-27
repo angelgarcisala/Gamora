@@ -11,6 +11,11 @@ class Anuncio extends Model
     /** @use HasFactory<\Database\Factories\AnuncioFactory> */
     use HasFactory;
     protected $fillable = ['juego_id', 'titulo', 'descripcion', 'fecha_inicio', 'fecha_fin'];
+    
+    protected $casts = [
+        'fecha_inicio' => 'datetime',
+        'fecha_fin'    => 'datetime',
+    ];
 
     public function juego (): BelongsTo{
         return $this->belongsTo(Juego::class);

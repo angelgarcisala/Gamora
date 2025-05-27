@@ -38,7 +38,10 @@ class JuegoFactory extends Factory
         'descripcion' => fake()->paragraph(4),
         'fecha_lanzamiento' => fake()->dateTimeBetween('-10 years', 'now'),
         'desarrollador' => fake()->company(), // company se invnenta nombres de compañías
-        'editor' => fake()->company()
+        'editor' => fake()->company(),
+        'precio' => fake()->randomFloat(2, 1, 20),
+        'url_descarga' => null,
+        'nombre_ejecutable' => null
     ];
 }
 

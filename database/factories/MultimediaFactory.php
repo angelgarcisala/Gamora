@@ -1,48 +1,57 @@
 <?php
+// database/factories/MultimediaFactory.php
 
 namespace Database\Factories;
 
 use App\Models\Juego;
+use App\Models\Multimedia;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Mmo\Faker\PicsumProvider;
 
 class MultimediaFactory extends Factory
 {
+    protected $model = Multimedia::class;
+
     public function definition(): array
     {
-        // Añadir el proveedor de Picsum directamente
-        fake()->addProvider(new \Mmo\Faker\PicsumProvider(fake()));
+        return [
+            // Se sobreescribe con create([ 'juego_id'=>..., 'tipo'=>'video' ]) en el seeder
+            'juego_id' => Juego::inRandomOrder()->first()->id,
+            'tipo'     => 'imagen',  // valor por defecto si no lo pasas
+            'url'      => '',        // lo rellenamos justo después
+        ];
+    }
 
-        // Cargar el array de URLs del JSON
-        $videoUrls = json_decode(File::get(base_path('database\data\videos_urls.json')), true);
+    public function configure()
+    {
+        return $this->afterMaking(function (Multimedia $media) {
+            // Nos aseguramos de tener el proveedor Picsum cargado
+            fake()->addProvider(new PicsumProvider(fake()));
 
-        // Aleatoriamente decidir si es imagen o video
-        $isVideo = fake()->boolean(30); // 30% probabilidad de ser video
+            if ($media->tipo === 'video') {
+                // ->create(['tipo'=>'video', ...]) o default
+                $videoUrls = json_decode(
+                    File::get(base_path('database/data/videos_urls.json')),
+                    true
+                );
+                $sourceUrl = fake()->randomElement($videoUrls);
+                $filename  = Str::random(12) . '.mp4';
+                $dest      = public_path("storage/videos/{$filename}");
+                file_put_contents($dest, file_get_contents($sourceUrl));
 
-        if ($isVideo) {
-            // Seleccionar una URL aleatoria
-            $url = fake()->randomElement($videoUrls);
-            $filename = Str::random(12) . '.mp4';
-            $storagePath = public_path("storage/videos/$filename");
-
-            // Descargar el archivo
-            file_put_contents($storagePath, file_get_contents($url));
-
-            return [
-                'tipo' => 'video',
-                'url' => "storage/videos/$filename",
-                'juego_id' => Juego::inRandomOrder()->first()->id,
-            ];
-        } else {
-            // Generar imagen usando Picsum
-            $filename = fake()->picsum(public_path('storage/images'), 640, 360, false);
-
-            return [
-                'tipo' => 'imagen',
-                'url' => "storage/images/$filename",
-                'juego_id' => Juego::inRandomOrder()->first()->id,
-            ];
-        }
+                $media->url = "storage/videos/{$filename}";
+            } else {
+                // ->create(['tipo'=>'imagen', ...]) o default
+                $filename  = fake()->picsum(
+                    public_path('storage/images'),
+                    640,
+                    360,
+                    false
+                );
+                $media->url = "storage/images/{$filename}";
+            }
+        });
     }
 }

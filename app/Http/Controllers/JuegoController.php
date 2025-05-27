@@ -36,7 +36,8 @@ class JuegoController extends Controller
      */
     public function show(Juego $juego)
     {
-        //
+        $juego->load('multimedias');
+        return view('juegos.show', compact('juego'));
     }
 
     /**
