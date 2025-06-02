@@ -1,26 +1,36 @@
+{{-- resources/views/components/self/base.blade.php --}}
 @props([])
 
-{{-- 1) Pre-pintado: si ya vimos el logo, detenemos sólo las animaciones internas y mostramos la UI --}}
+{{-- 1) Pre-pintado: si ya vimos el logo, pausamos internals y mostramos la UI --}}
 <script>
 (function(){
-    const key    = 'logoAnimated';
+    const key = 'logoAnimated';
     if (!sessionStorage.getItem(key)) return;
     const css = `
-      /* Pausar todas las CSS animations dentro del SVG */
+      /* Pausar las animaciones internas del SVG */
       #logo-svg, #logo-svg * {
         animation-play-state: paused !important;
         animation-fill-mode: forwards !important;
         animation-delay: -9999s !important;
       }
-      /* UI ya visible sin delay */
+
+      /* Mostrar la UI sin delay */
       #ui-container {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
       }
-      /* Desbloquear clicks desde el inicio */
-      #logo-container {
+
+      /* Wrapper bloquea todo */
+      #logo-container,
+      #logo-container * {
         pointer-events: none !important;
+      }
+
+      /* Pero el enlace dentro de #logo-container debe ser clicable SOLO en su área */
+      #logo-link,
+      #logo-link * {
+        pointer-events: auto !important;
       }
     `;
     const st = document.createElement('style');
@@ -29,139 +39,116 @@
 })();
 </script>
 
-{{-- 2) DOMContentLoaded: solo en primera visita corre la animación; en las demás fija inline el transform final --}}
+{{-- 2) Animación en DOMContentLoaded --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const key           = 'logoAnimated';
-    const logoContainer = document.getElementById('logo-container');
-    const wrapper       = document.getElementById('logo-svg');
-    const logoSvgEl     = wrapper.querySelector('svg');
-    const uiContainer   = document.getElementById('ui-container');
+    const key         = 'logoAnimated';
+    const logoCont    = document.getElementById('logo-container');
+    const uiContainer = document.getElementById('ui-container');
+    const svgWrapper  = document.getElementById('logo-svg');
 
-    const initialScale   = 3;
-    const finalScale     = 0.5;
-    const movePctX       = 0.4;
-    const movePctY       = 0.4;
-    const waitBeforeMove = 4000;
-    const moveDuration   = 1200;
+    const initialScale = 3, finalScale = 0.5;
+    const movePctX     = 0.4, movePctY = 0.4;
+    const waitBefore   = 4000, moveDuration = 1200;
     let moved = false, resizeTO;
 
     function finalTransform() {
-        return {
-            tx: -(window.innerWidth * movePctX),
-            ty: -(window.innerHeight * movePctY)
-        };
+      return {
+        tx: -(window.innerWidth * movePctX),
+        ty: -(window.innerHeight * movePctY)
+      };
     }
 
     function animateToCorner() {
-        const { tx, ty } = finalTransform();
-        wrapper.style.transition = `transform ${moveDuration}ms ease-in-out`;
-        wrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
+      const { tx, ty } = finalTransform();
+      svgWrapper.style.transition = `transform ${moveDuration}ms ease-in-out`;
+      svgWrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
     }
 
     function stopBlocking() {
-        logoContainer.style.pointerEvents = 'none';
+      logoCont.style.pointerEvents = 'none';
     }
 
     if (sessionStorage.getItem(key)) {
-        // ── Visita posterior ──
-        moved = true;
-        // Fijamos inline estado final SIN animar:
-        const { tx, ty } = finalTransform();
-        wrapper.style.transition = 'none';
-        wrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
-        stopBlocking();
-
-        // Pausamos SMIL (si existiera) para que esté “completo”
-        if (logoSvgEl && logoSvgEl.pauseAnimations) {
-            try { logoSvgEl.pauseAnimations(); } catch {}
-        }
-        const anims = logoSvgEl?.querySelectorAll('animate, animateTransform, set');
-        anims?.forEach(a => { try { a.endElement(); } catch {} });
-
-        // Y listo: no tocamos el UIContainer porque el CSS pre-pintado ya lo dejó visible.
+      moved = true;
+      const { tx, ty } = finalTransform();
+      svgWrapper.style.transition = 'none';
+      svgWrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
+      stopBlocking();
     } else {
-        // ── Primera visita ──
-        // 1) Estado inicial centrado y grande
-        wrapper.style.transform = `scale(${initialScale})`;
-
-        // 2) Tras el delay, animamos a la esquina y luego mostramos la UI
+      svgWrapper.style.transform = `scale(${initialScale})`;
+      setTimeout(() => {
+        animateToCorner();
+        moved = true;
         setTimeout(() => {
-            animateToCorner();
-            moved = true;
-            setTimeout(() => {
-                uiContainer.classList.remove('opacity-0','translate-y-10');
-                uiContainer.classList.add   ('opacity-100');
-                stopBlocking();
-                sessionStorage.setItem(key,'true');
-            }, moveDuration);
-        }, waitBeforeMove);
+          uiContainer.classList.replace('opacity-0','opacity-100');
+          uiContainer.classList.replace('translate-y-10','translate-y-0');
+          stopBlocking();
+          sessionStorage.setItem(key,'true');
+        }, moveDuration);
+      }, waitBefore);
     }
 
-    // ── Resize: reposicionamos con animación siempre que ya esté movido ──
     window.addEventListener('resize', () => {
-        if (!moved) return;
-        logoContainer.style.pointerEvents = 'auto';
-        animateToCorner();
-        clearTimeout(resizeTO);
-        resizeTO = setTimeout(stopBlocking, moveDuration + 100);
+      if (!moved) return;
+      logoCont.style.pointerEvents = 'auto';
+      animateToCorner();
+      clearTimeout(resizeTO);
+      resizeTO = setTimeout(stopBlocking, moveDuration + 100);
     });
 
-    // ── Detección Electron (si aplica) ──
-    if (window.electronAPI?.isElectron) {
-        document.getElementById('electron-only')?.classList.remove('hidden');
-    }
+    const dashUrl = '{{ route("dashboard") }}';
+    svgWrapper.addEventListener('click', () => {
+      if (sessionStorage.getItem(key)) {
+        window.location = dashUrl;
+      }
+    });
 });
 </script>
 
 <div class="relative w-screen h-screen overflow-hidden bg-steam-gradient">
-  {{-- Splash/logo bloqueando clicks --}}
-  <div id="logo-container"
-       class="absolute inset-0 flex items-center justify-center z-30">
-    <div id="logo-svg" class="transition-transform duration-1000 ease-in-out">
-      {!! file_get_contents(public_path('storage/media/Gamora-gradient-faster.svg')) !!}
+
+  <div id="logo-container" class="absolute inset-0 flex items-center justify-center z-30">
+    <div id="logo-svg" class="transition-transform duration-1000 ease-in-out cursor-pointer">
+      <a id="logo-link" href="{{ route('dashboard') }}">
+        {!! file_get_contents(public_path('storage/media/Gamora-gradient-faster.svg')) !!}
+      </a>
     </div>
   </div>
 
-  {{-- Nav + slot + footer --}}
-  <div id="ui-container"
-       class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
-    <nav class="flex items-center justify-between px-8 py-4">
-      <div class="flex items-center space-x-4"></div>
-      <div class="flex space-x-8 text-white font-semibold text-lg">
-        <a href="#" class="hover:text-purple-400 transition">Inicio</a>
-        <a href="#" class="hover:text-purple-400 transition">Tienda</a>
-        <a href="#" class="hover:text-purple-400 transition">Biblioteca</a>
-        <a href="#" class="hover:text-purple-400 transition">Comunidad</a>
+  <div
+    id="ui-container"
+    class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-      @guest
-        <div class="flex space-x-4">
-          <a href="{{ route('login') }}"
-            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
-            Iniciar sesión
-          </a>
-          <a href="{{ route('register') }}"
-            class="px-4 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">
-            Registrarse
-          </a>
-        </div>
-      @else
+    <nav class="flex items-center justify-end px-8 py-4 space-x-6">
+      <div class="flex space-x-8 text-white font-semibold text-lg">
+        <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
+        <a href="#" class="hover:text-purple-400 transition">Tienda</a>
+        <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-400 transition">Biblioteca</a>
+        <a href="#" class="hover:text-purple-400 transition">Subir juego</a>
+      </div>
+      @auth
         <div class="flex items-center space-x-4">
-          <a href="{{ route('profile.show') }}"
-            class="px-3 py-2 hover:text-purple-300 transition">
-            {{ Auth::user()->name }}
-          </a>
+          <a href="{{ route('profile.show') }}" class="text-white hover:text-purple-400">{{ Auth::user()->name }}</a>
           <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit"
-                    class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition">
-              Cerrar sesión
-            </button>
+            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition">Cerrar sesión</button>
           </form>
         </div>
-      @endguest
-      </div>
+      @else
+        <div>
+          <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
+          <a href="{{ route('register') }}" class="ml-4 px-4 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">Registrarse</a>
+        </div>
+      @endauth
     </nav>
+
+    {{-- Saldo justo debajo de logout/perfil --}}
+    @auth
+      <div class="px-8 text-right text-purple-200 font-medium">
+        Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
+      </div>
+    @endauth
 
     <main class="flex-1 p-8 overflow-y-auto">
       {{ $slot }}
@@ -170,5 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
     <footer class="text-center py-4 text-purple-400 text-sm bg-gradient-to-t from-black via-gray-900 to-transparent">
       © 2025 Gamora. Todos los derechos reservados.
     </footer>
+
   </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.electronAPI) {
+        document.getElementById('electron-only')?.classList.remove('hidden');
+      } else {
+        document.getElementById('browser-only')?.classList.remove('hidden');
+      }
+    });
+  </script>
+
 </div>

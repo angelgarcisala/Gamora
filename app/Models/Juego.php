@@ -30,10 +30,6 @@ class Juego extends Model
         return $this->hasMany(Valoracion::class);
     }
 
-    public function carritos(): BelongsToMany {
-        return $this->belongsToMany(Carrito::class);
-    }
-
     public function anuncios(): HasMany {
         return $this->hasMany(Anuncio::class);
     }

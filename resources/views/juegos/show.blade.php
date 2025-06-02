@@ -1,10 +1,10 @@
 {{-- resources/views/juegos/show.blade.php --}}
 <x-app-layout>
   <x-self.base>
-    <div class="max-w-5xl mx-auto py-8 text-white">
+    <div class="max-w-7xl mx-auto py-8 text-white">
 
       {{-- ← Volver --}}
-      <a href="{{ route('welcome') }}"
+      <a href="{{ url()->previous() }}"
          class="inline-flex items-center text-purple-300 hover:text-white transition mb-6">
         ← Volver
       </a>
@@ -12,71 +12,139 @@
       {{-- Título --}}
       <h1 class="text-3xl font-bold mb-4">{{ $juego->titulo }}</h1>
 
-      {{-- Media principal: vídeo si existe, sino imagen --}}
       @php
-        $video  = $juego->multimedias->firstWhere('tipo','video');
-        $imagen = $juego->multimedias->firstWhere('tipo','imagen');
+        // Recogemos toda la galería de multimedia
+        $media = $juego->multimedias;
       @endphp
 
-      @if($video)
-        <video controls
-               class="w-full max-h-[400px] mb-6 rounded shadow-lg bg-black">
-          <source src="{{ asset($video->url) }}" type="video/mp4">
-          Tu navegador no soporta la etiqueta <code>&lt;video&gt;</code>.
-        </video>
-      @elseif($imagen)
-        <img src="{{ asset($imagen->url) }}"
-             alt="{{ $juego->titulo }}"
-             class="w-full max-h-[400px] object-contain mb-6 rounded shadow-lg">
-      @endif
+      <div 
+        x-data="{
+          media: @js($media->map(fn($m) => [
+            'id'  => $m->id,
+            'tipo'=> $m->tipo,
+            'url' => asset($m->url),
+          ])),
+          selected: null,
+          init() { this.selected = this.media[0] },
+        }"
+        x-init="init()"
+        class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8"
+      >
+        {{-- Columna izquierda: galería --}}
+        <div>
+          {{-- Área principal --}}
+          <div class="bg-black rounded shadow-lg overflow-hidden aspect-video">
+            <template x-if="selected.tipo === 'video'">
+              <video 
+                x-bind:src="selected.url" 
+                autoplay muted loop playsinline 
+                class="w-full h-full object-cover"
+              ></video>
+            </template>
+            <template x-if="selected.tipo === 'imagen'">
+              <img 
+                x-bind:src="selected.url" 
+                class="w-full h-full object-contain" 
+                alt="{{ $juego->titulo }}"
+              />
+            </template>
+          </div>
 
-      {{-- Descripción --}}
-      <p class="mb-6 text-purple-200">{{ $juego->descripcion }}</p>
+          {{-- Thumbnails --}}
+          <div class="flex space-x-2 mt-4 overflow-x-auto">
+            <template x-for="item in media" :key="item.id">
+              <button
+                @click="selected = item"
+                class="flex-shrink-0 w-24 h-16 rounded overflow-hidden border-2"
+                :class="{
+                  'border-purple-500': selected.id === item.id,
+                  'border-transparent': selected.id !== item.id
+                }"
+              >
+                <template x-if="item.tipo === 'video'">
+                  <video 
+                    x-bind:src="item.url" 
+                    muted playsinline 
+                    class="w-full h-full object-cover"
+                  ></video>
+                </template>
+                <template x-if="item.tipo === 'imagen'">
+                  <img 
+                    x-bind:src="item.url" 
+                    class="w-full h-full object-cover" 
+                    alt=""
+                  />
+                </template>
+              </button>
+            </template>
+          </div>
+        </div>
 
-      {{-- Botón compra/descarga --}}
-      @livewire('boton-descarga-juego', ['juego' => $juego])
+        {{-- Columna derecha: detalles --}}
+        <div class="space-y-4">
+          {{-- Descripción --}}
+          <p class="text-purple-200">{{ $juego->descripcion }}</p>
 
-      {{-- Logs para Electron --}}
-      <pre id="electron-log"
-           class="bg-black text-green-400 text-xs p-2 rounded max-h-48 overflow-y-auto"></pre>
-      <script>
-        if (window.electronAPI?.ping) {
-          window.electronAPI.ping();
-        }
-      </script>
+          {{-- Reseñas --}}
+          <div>
+            <span class="font-semibold">{{ $juego->valoraciones->count() }}</span>
+            reseñas
+          </div>
 
-      {{-- Sección Anuncios Vigentes --}}
-      @php
-        $now = now();
-        $anunciosVigentes = $juego->anuncios
-          ->filter(fn($a) => $now->between($a->fecha_inicio, $a->fecha_fin));
-      @endphp
+          {{-- Desarrollador y editor --}}
+          <div>
+            <span class="font-semibold">Desarrollador:</span>
+            {{ $juego->desarrollador }}
+          </div>
+          <div>
+            <span class="font-semibold">Editor:</span>
+            {{ $juego->editor }}
+          </div>
 
-      @if($anunciosVigentes->isNotEmpty())
-        <section class="mt-12 bg-purple-900/50 p-6 rounded-lg shadow-inner">
-          <h2 class="text-2xl font-semibold mb-4">Anuncios</h2>
-          <div class="space-y-4">
-            @foreach($anunciosVigentes as $anuncio)
-              <div class="p-4 bg-purple-800/70 rounded">
-                <h3 class="text-xl font-bold text-purple-100 mb-1">
-                  {{ $anuncio->titulo }}
-                </h3>
-                <p class="text-purple-200 text-sm">
-                  {{ $anuncio->descripcion }}
-                </p>
-                <p class="mt-2 text-xs text-purple-400">
-                  Válido desde
-                  {{ $anuncio->fecha_inicio->format('d/m/Y') }}
-                  hasta
-                  {{ $anuncio->fecha_fin->format('d/m/Y') }}
-                </p>
-              </div>
+          {{-- Tags populares --}}
+          <div class="flex flex-wrap gap-2">
+            @foreach($juego->etiquetas ?? [] as $et)
+              <span class="px-3 py-1 bg-purple-700 rounded-full text-sm">
+                {{ $et->nombre }}
+              </span>
             @endforeach
           </div>
-        </section>
-      @endif
 
-      {{-- … aquí vendrían reseñas, metadatos, galería, etc. … --}}
+          {{-- Compra / Descarga --}}
+          <div class="mt-6 space-y-4">
+            {{-- Botón de comprar (solo si no lo tiene) --}}
+            @can('comprar', $juego)
+              <form action="{{ route('juegos.comprar', $juego) }}" method="POST">
+                @csrf
+                <button
+                  type="submit"
+                  class="w-full text-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-2xl shadow-lg transition"
+                >
+                  Comprar por €{{ number_format($juego->precio, 2) }}
+                </button>
+              </form>
+            @endcan
+
+            {{-- Botón de descargar/jugar (solo si ya lo tiene) --}}
+            @can('jugar', $juego)
+              <div id="electron-only" class="hidden">
+                @livewire('boton-descarga-juego', ['juego' => $juego])
+              </div>
+              <div id="browser-only" class="hidden">
+                <a 
+                  href="{{ asset('storage/download/Gamora Setup 1.0.0.exe') }}" 
+                  class="inline-block w-full text-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl shadow-lg transition"
+                >
+                  Descargar Gamora Desktop
+                </a>
+              </div>
+            @endcan
+          </div>
+
+        </div>
+      </div>
+
+      {{-- … aquí vendrían anuncios, reseñas detalladas, etc… --}}
     </div>
   </x-self.base>
 </x-app-layout>

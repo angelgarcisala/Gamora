@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
         Anuncio::factory(60)->create();
 
         $this->call(MultimediaSeeder::class);
-        $this->call(CarritoSeeder::class);
         $this->call(BibliotecaSeeder::class);
         $this->call(ListaDeseadosSeeder::class);
         $this->call(ValoracionSeeder::class);
