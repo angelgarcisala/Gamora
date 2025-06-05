@@ -101,6 +101,16 @@
             {{ $juego->editor }}
           </div>
 
+          {{-- Botón de Editar (solo si el usuario es el desarrollador) --}}
+          @if(Auth::user()->name === $juego->desarrollador)
+            <div>
+              <a href="{{ route('juegos.edit', $juego) }}"
+                 class="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition">
+                Editar juego
+              </a>
+            </div>
+          @endif
+
           {{-- Tags populares --}}
           <div class="flex flex-wrap gap-2">
             @foreach($juego->etiquetas ?? [] as $et)

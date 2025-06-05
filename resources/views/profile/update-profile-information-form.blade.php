@@ -1,10 +1,14 @@
 <x-form-section submit="updateProfileInformation">
     <x-slot name="title">
-        {{ __('Información del perfil') }}
+        <span class="text-[#FFFFFF]">
+            {{ __('Información del perfil') }}
+        </span>
     </x-slot>
 
     <x-slot name="description">
-        {{ __('Actualiza la información de perfil y la dirección de correo electrónico de tu cuenta.') }}
+        <p class="text-[#FFFACD]">
+            {{ __('Actualiza la información de perfil y la dirección de correo electrónico de tu cuenta.') }}
+        </p>
     </x-slot>
 
     <x-slot name="form">
@@ -30,23 +34,23 @@
                 <div class="mt-2" x-show="! photoPreview">
                     <img src="{{ $this->user->profile_photo_url }}"
                          alt="{{ $this->user->name }}"
-                         class="rounded-full size-20 object-cover">
+                         class="rounded-full h-20 w-20 object-cover">
                 </div>
 
                 <!-- New Profile Photo Preview -->
                 <div class="mt-2" x-show="photoPreview" style="display: none;">
-                    <span class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
+                    <span class="block rounded-full h-20 w-20 bg-cover bg-no-repeat bg-center"
                           x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
                     </span>
                 </div>
 
                 <x-secondary-button class="mt-2 me-2" type="button" x-on:click.prevent="$refs.photo.click()">
-                    {{ __('Seleccionar nueva foto') }}
+                    <span class="text-[#FFFFFF]">{{ __('Seleccionar nueva foto') }}</span>
                 </x-secondary-button>
 
                 @if ($this->user->profile_photo_path)
                     <x-secondary-button type="button" class="mt-2" wire:click="deleteProfilePhoto">
-                        {{ __('Eliminar foto') }}
+                        <span class="text-[#FFFFFF]">{{ __('Eliminar foto') }}</span>
                     </x-secondary-button>
                 @endif
 
@@ -90,7 +94,7 @@
                         class="underline hover:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         wire:click.prevent="sendEmailVerification"
                     >
-                        {{ __('Haz clic aquí para reenviar el correo de verificación.') }}
+                        <span class="text-[#FFFFFF]">{{ __('Haz clic aquí para reenviar el correo de verificación.') }}</span>
                     </button>
                 </p>
 

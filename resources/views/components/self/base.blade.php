@@ -123,9 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
     <nav class="flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
-        <a href="#" class="hover:text-purple-400 transition">Tienda</a>
+        <a href="{{ route('tienda.index') }}" class="hover:text-purple-400 transition">Tienda</a>
         <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-400 transition">Biblioteca</a>
-        <a href="#" class="hover:text-purple-400 transition">Subir juego</a>
+        <a href="{{ route('juegos.create') }}" class="hover:text-purple-400 transition">Subir juego</a>
+        @auth
+          <a href="{{ route('juegos.mis_juegos') }}" class="hover:text-purple-400 transition">Mis Juegos</a>
+        @endauth
       </div>
       @auth
         <div class="flex items-center space-x-4">

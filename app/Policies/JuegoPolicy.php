@@ -57,7 +57,7 @@ class JuegoPolicy
      */
     public function update(User $user, Juego $juego): bool
     {
-        return false;
+        return $juego->desarrollador === $user->name;
     }
 
     /**
