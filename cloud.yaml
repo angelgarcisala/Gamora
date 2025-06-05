@@ -1,0 +1,8 @@
+build:
+  commands:
+    - composer install --no-dev --optimize-autoloader
+
+deploy:
+  commands:
+    - php artisan config:cache
+    - php artisan migrate:fresh --seed --force
