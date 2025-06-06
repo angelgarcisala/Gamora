@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="logo-container" class="absolute inset-0 flex items-center justify-center z-30">
     <div id="logo-svg" class="transition-transform duration-1000 ease-in-out cursor-pointer">
       <a id="logo-link" href="{{ route('dashboard') }}">
-        {!! file_get_contents(public_path('storage/media/Gamora-gradient-faster.svg')) !!}
+        <img src="{{ Storage::disk('s3')->url('storage/media/media/Gamora-gradient-faster.svg') }}">
       </a>
     </div>
   </div>
