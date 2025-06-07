@@ -24,7 +24,6 @@
         <div class="relative page-container">
             {{-- Generamos 15 mandos en posiciones absolutas dentro del flujo de la página --}}
             @php
-              use Illuminate\Support\Facades\Storage;
               $files = ['mando.png','mando2.png','mando3.png', 'mando4.png'];
             @endphp
             @for ($i = 0; $i < 10; $i++)
