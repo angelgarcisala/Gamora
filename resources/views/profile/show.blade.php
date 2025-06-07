@@ -24,11 +24,12 @@
         <div class="relative page-container">
             {{-- Generamos 15 mandos en posiciones absolutas dentro del flujo de la página --}}
             @php
+              use Illuminate\Support\Facades\Storage;
               $files = ['mando.png','mando2.png','mando3.png', 'mando4.png'];
             @endphp
             @for ($i = 0; $i < 10; $i++)
               <img
-                src="{{ asset('storage/media/'.$files[$i % 4]) }}"
+                src="{{ Storage::disk('s3')->url('storage/media/'.$files[$i % 4]) }}"
                 alt="Mando {{ $i+1 }}"
                 class="dynamic-floating float-space"
                 data-index="{{ $i }}"

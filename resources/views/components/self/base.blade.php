@@ -105,19 +105,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
 @php
+//PHP para guardar en una variable la media que vaya a necesitar durante la página
   use Illuminate\Support\Facades\Storage;
-$logo = Storage::disk('s3')
-     ->url('storage/media/Gamora-gradient-faster.svg');
-
-
+  $logo = Storage::disk('s3')->url('storage/media/Gamora-gradient-faster.svg');
 @endphp
+
 <div class="relative w-screen h-screen overflow-hidden bg-steam-gradient">
 
   <div id="logo-container" class="absolute inset-0 flex items-center justify-center z-30">
     <div id="logo-svg" class="transition-transform duration-1000 ease-in-out cursor-pointer">
       <a id="logo-link" href="{{ route('dashboard') }}">
-        <img src="https://gamora-final-angel.s3.eu-central-1.amazonaws.com/storage/media/Gamora-gradient-faster.svg">
+        <img src="{{ $logo }}">
       </a>
     </div>
   </div>
