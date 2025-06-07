@@ -12,7 +12,7 @@
     <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8">
       {{-- Logo Gamora --}}
       <div class="flex justify-center mb-6">
-        <img src="{{ asset('storage/media/gamora-gradient-faster.svg') }}"
+        <img src="{{ Storage::disk('s3')->url('storage/media/gamora-gradient-faster.svg') }}"
              alt="Gamora"/>
       </div>
 
