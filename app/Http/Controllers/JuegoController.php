@@ -122,7 +122,7 @@ class JuegoController extends Controller
                 if ($m && $m->juego_id == $juego->id) {
                     // La URL se guarda como "/storage/images/{slug}/{filename}" o "/storage/videos/{slug}/{filename}"
                     $relativePath = Str::after($m->url, '/storage/');
-                    Storage::disk('public')->delete($relativePath);
+                    Storage::disk('s3')->delete($relativePath);
                     $m->delete();
                 }
             }
@@ -133,7 +133,7 @@ class JuegoController extends Controller
         if ($request->has('remove_zip')) {
             if ($juego->url_descarga) {
                 $oldZipPath = Str::after($juego->url_descarga, '/storage/');
-                Storage::disk('public')->delete($oldZipPath);
+                Storage::disk('s3')->delete($oldZipPath);
             }
             $juego->url_descarga = null;
         }
@@ -142,7 +142,7 @@ class JuegoController extends Controller
             // Borrar ZIP antiguo si no se borró en el paso anterior
             if ($juego->url_descarga) {
                 $oldZipPath = Str::after($juego->url_descarga, '/storage/');
-                Storage::disk('public')->delete($oldZipPath);
+                Storage::disk('s3')->delete($oldZipPath);
             }
             // El slug puede cambiar (si el usuario actualizó el título); recalculamos:
             $newSlug = Str::slug($request->input('titulo'));
