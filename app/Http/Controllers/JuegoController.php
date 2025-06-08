@@ -197,10 +197,10 @@ class JuegoController extends Controller
             'precio'            => ['required', 'numeric', 'min:0'],
             'nombre_ejecutable' => ['required', 'string', 'max:255'],
             'imagenes.*'        => ['nullable', 'image', 'mimes:jpeg,png', 'max:2048'],
-            'videos.*'          => ['nullable', 'mimetypes:video/mp4,video/x-matroska', 'max:10240'],
+            'videos.*'          => ['nullable', 'mimetypes:video/mp4,video/x-matroska', 'max:102400'],
             'zip'               => $id 
-                                   ? ['nullable', 'mimes:zip', 'max:102400'] 
-                                   : ['required', 'mimes:zip', 'max:102400'],
+                                   ? ['nullable', 'mimes:zip', 'max:1048576'] 
+                                   : ['required', 'mimes:zip', 'max:1048576'],
             'remove_media'      => ['nullable', 'array'],
             'remove_media.*'    => ['integer', 'exists:multimedia,id'],
             'remove_zip'        => ['nullable', 'in:1'],
