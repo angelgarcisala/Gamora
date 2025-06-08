@@ -24,7 +24,5 @@ class DatabaseSeeder extends Seeder
 
         $this->call(MultimediaSeeder::class);
         $this->call(BibliotecaSeeder::class);
-        $this->call(ListaDeseadosSeeder::class);
-        $this->call(ValoracionSeeder::class);
     }
 }
