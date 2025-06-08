@@ -38,12 +38,6 @@ class JuegoPolicy
             && $user->biblioteca->juegos->contains($juego->id);
     }
 
-    public function valorar(User $user, Juego $juego): bool
-    {
-        return $user->biblioteca
-            && $user->biblioteca->juegos->contains($juego->id);
-    }
-
     /**
      * Determine whether the user can create models.
      */
