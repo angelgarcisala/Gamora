@@ -1,11 +1,11 @@
 {{-- resources/views/auth/register.blade.php --}}
 <x-guest-layout>
-  {{-- Contenedor full‐screen con tu gradiente --}}
-  <div class="min-h-screen flex flex-col items-center justify-center bg-steam-gradient px-4 sm:px-6 lg:px-8">
+  {{-- Contenedor full-screen con gradiente y posición relativa --}}
+  <div class="min-h-screen relative flex flex-col items-center justify-center bg-steam-gradient px-4 sm:px-6 lg:px-8">
 
-    {{-- ← Volver --}}
-    <a href="{{ url()->previous() }}"
-       class="self-start mb-6 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">
+    {{-- ← Volver fijado en la esquina superior izquierda --}}
+    <a href="{{ route('login') }}"
+       class="absolute top-4 left-4 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">
       ← Volver
     </a>
 

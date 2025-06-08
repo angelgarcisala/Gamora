@@ -1,14 +1,14 @@
 <x-guest-layout>
-  {{-- Contenedor full‐screen con tu gradiente --}}
-  <div class="min-h-screen flex flex-col items-center justify-center bg-steam-gradient px-4 sm:px-6 lg:px-8">
+  {{-- Contenedor full‐screen con gradiente y posición relativa --}}
+  <div class="min-h-screen relative flex flex-col items-center justify-center bg-steam-gradient px-4 sm:px-6 lg:px-8">
 
-    {{-- ← Volver --}}
-    <a href="{{ url()->previous() }}"
-       class="self-start mb-6 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">
+    {{-- ← Volver fijado en la esquina superior izquierda --}}
+    <a href="{{ route('login') }}"
+       class="absolute top-4 left-4 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">
       ← Volver
     </a>
 
-    {{-- Tarjeta semitransparente con blur --}}
+    {{-- Tarjeta semitransparente con blur y centrada --}}
     <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8">
       {{-- Logo Gamora --}}
       <div class="flex justify-center mb-6">
@@ -19,11 +19,11 @@
       {{-- Errores / estado --}}
       <x-validation-errors class="mb-4 text-red-400" />
 
-      @session('status')
+      @if (session('status'))
         <div class="mb-4 text-sm text-green-300">
-          {{ $value }}
+          {{ session('status') }}
         </div>
-      @endsession
+      @endif
 
       {{-- Formulario --}}
       <form method="POST" action="{{ route('login') }}">
@@ -31,18 +31,18 @@
 
         <div class="mb-4">
           <x-label for="email" value="Email" class="text-purple-200" />
-          <x-input id="email" 
-                   class="block mt-1 w-full bg-white/20 placeholder-purple-300 text-white border-none focus:ring-purple-500 focus:border-purple-500" 
-                   type="email" name="email" 
-                   :value="old('email')" required autofocus 
+          <x-input id="email"
+                   class="block mt-1 w-full bg-white/20 placeholder-purple-300 text-white border-none focus:ring-purple-500 focus:border-purple-500"
+                   type="email" name="email"
+                   :value="old('email')" required autofocus
                    placeholder="tú@correo.com" />
         </div>
 
         <div class="mb-4">
           <x-label for="password" value="Contraseña" class="text-purple-200" />
-          <x-input id="password" 
-                   class="block mt-1 w-full bg-white/20 placeholder-purple-300 text-white border-none focus:ring-purple-500 focus:border-purple-500" 
-                   type="password" name="password" required 
+          <x-input id="password"
+                   class="block mt-1 w-full bg-white/20 placeholder-purple-300 text-white border-none focus:ring-purple-500 focus:border-purple-500"
+                   type="password" name="password" required
                    placeholder="••••••••" />
         </div>
 
