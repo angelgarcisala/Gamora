@@ -84,13 +84,6 @@
         <div class="space-y-4">
           {{-- Descripción --}}
           <p class="text-purple-200">{{ $juego->descripcion }}</p>
-
-          {{-- Reseñas --}}
-          <div>
-            <span class="font-semibold">{{ $juego->valoraciones->count() }}</span>
-            reseñas
-          </div>
-
           {{-- Desarrollador y editor --}}
           <div>
             <span class="font-semibold">Desarrollador:</span>
