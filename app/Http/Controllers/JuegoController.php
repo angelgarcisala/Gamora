@@ -199,8 +199,8 @@ class JuegoController extends Controller
             'imagenes.*'        => ['nullable', 'image', 'mimes:jpeg,png', 'max:2048'],
             'videos.*'          => ['nullable', 'mimetypes:video/mp4,video/x-matroska', 'max:102400'],
             'zip'               => $id 
-                                   ? ['nullable', 'mimes:zip', 'max:1048576'] 
-                                   : ['required', 'mimes:zip', 'max:1048576'],
+                                   ? ['nullable', 'mimes:zip', 'max:104857600'] 
+                                   : ['required', 'mimes:zip', 'max:104857600'],
             'remove_media'      => ['nullable', 'array'],
             'remove_media.*'    => ['integer', 'exists:multimedia,id'],
             'remove_zip'        => ['nullable', 'in:1'],
