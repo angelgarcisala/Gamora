@@ -80,6 +80,9 @@
         },
         /* 7) Añadir archivos nuevos a los arrays, respetando límites totales */
         processFiles(list) {
+            // Variable para controlar si se intentó agregar alguna imagen de más
+            let excesoImagenes = false;
+
             list.forEach(file => {
                 if (file.type.startsWith("image/")) {
                     // Calcular cuántas imágenes hay en total (existentes + nuevas)
@@ -87,7 +90,7 @@
                     if (totalImages < 4) {
                         this.imageFiles.push(file);
                     } else {
-                        alert("No puedes tener más de 4 imágenes en total.");
+                        excesoImagenes = true;
                     }
                 } else if (
                     ["video/mp4","video/x-matroska","video/webm"].includes(file.type)
@@ -103,6 +106,12 @@
                     alert("Tipo de archivo no soportado: " + file.name);
                 }
             });
+
+            // Mostrar un solo aviso si se excedió el límite de imágenes
+            if (excesoImagenes) {
+                alert("No puedes tener más de 4 imágenes en total.");
+            }
+
             this.$refs.mediaInput.value = null; // permitir reseleccionar mismos archivos
             this.syncMediaInputs();
         },
@@ -464,6 +473,7 @@
                                 type="text"
                                 value="{{ old('titulo', $juego->titulo) }}"
                                 required
+                                readonly
                                 placeholder="Ej. Mi Aventura Gráfica"
                                 class="mt-1 block w-full bg-gray-700/40 placeholder-gray-400 text-white text-base border-gray-700 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm" />
                         </div>
