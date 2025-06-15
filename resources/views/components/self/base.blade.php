@@ -7,17 +7,19 @@
     const key = 'logoAnimated';
     if (!sessionStorage.getItem(key)) return;
     const css = `
+      /* Pausar animaciones internas del SVG */
       #logo-svg, #logo-svg * {
         animation-play-state: paused !important;
         animation-fill-mode: forwards !important;
         animation-delay: -9999s !important;
       }
+      /* Mostrar la UI sin delay */
       #ui-container {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
       }
-      /* Bloquea todo excepto el enlace del logo */
+      /* Bloquear todo dentro de logo-container excepto el enlace */
       #logo-container, #logo-container * { pointer-events: none !important; }
       #logo-link, #logo-link *       { pointer-events: auto  !important; }
     `;
@@ -35,28 +37,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const uiContainer  = document.getElementById('ui-container');
     const svgWrapper   = document.getElementById('logo-svg');
     const initialScale = 3, finalScale = 0.5;
-    const movePctX     = 0.4, movePctY   = 0.4;
+    const movePctX     = 0.4, movePctY = 0.4;
     const waitBefore   = 4000, moveDuration = 1200;
     let moved = false, resizeTO;
 
-    function finalTransform(){
-      return { tx: -window.innerWidth * movePctX, ty: -window.innerHeight * movePctY };
+    function finalTransform() {
+      return {
+        tx: -window.innerWidth * movePctX,
+        ty: -window.innerHeight * movePctY
+      };
     }
-    function animateToCorner(){
+    function animateToCorner() {
       const c = finalTransform();
-      svgWrapper.style.transition = 'transform ' + moveDuration + 'ms ease-in-out';
-      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
+      svgWrapper.style.transition = `transform ${moveDuration}ms ease-in-out`;
+      svgWrapper.style.transform  = `translate(${c.tx}px, ${c.ty}px) scale(${finalScale})`;
     }
-    function stopBlocking(){ logoCont.style.pointerEvents = 'none'; }
+    function stopBlocking() {
+      logoCont.style.pointerEvents = 'none';
+    }
 
     if (sessionStorage.getItem(key)) {
       moved = true;
       const c = finalTransform();
       svgWrapper.style.transition = 'none';
-      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
+      svgWrapper.style.transform  = `translate(${c.tx}px, ${c.ty}px) scale(${finalScale})`;
       stopBlocking();
     } else {
-      svgWrapper.style.transform = 'scale(' + initialScale + ')';
+      svgWrapper.style.transform = `scale(${initialScale})`;
       setTimeout(function(){
         animateToCorner();
         moved = true;
@@ -79,7 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const dashUrl = '{{ route("dashboard") }}';
     svgWrapper.addEventListener('click', function(){
-      if (sessionStorage.getItem(key)) window.location = dashUrl;
+      if (sessionStorage.getItem(key)) {
+        window.location = dashUrl;
+      }
     });
 });
 </script>
@@ -104,9 +113,10 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
+  {{-- UI overlay --}}
   <div id="ui-container" class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-    {{-- ——— MÓVIL: hamburguesa ——— --}}
+    {{-- MÓVIL: botón hamburguesa --}}
     <div class="flex items-center justify-end px-8 py-4 md:hidden">
       <button id="menu-toggle" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -116,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </button>
     </div>
 
-    {{-- ——— MÓVIL: drawer ——— --}}
+    {{-- MÓVIL: drawer off-canvas --}}
     <div id="mobile-drawer"
          class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-50 md:hidden">
       <div class="flex justify-end p-4">
@@ -128,12 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </button>
       </div>
       <nav class="flex flex-col items-center space-y-6 mt-8">
-        <a href="{{ route('dashboard') }}"   class="text-white text-xl hover:text-purple-400 transition">Inicio</a>
+        <a href="{{ route('dashboard') }}" class="text-white text-xl hover:text-purple-400 transition">Inicio</a>
         <a href="{{ route('tienda.index') }}" class="text-white text-xl hover:text-purple-400 transition">Tienda</a>
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
-        <a href="{{ route('juegos.create') }}"   class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
+        <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- descarga (solo en navegador) --}}
+        {{-- boton descarga (solo navegador) --}}
         <div class="browser-only hidden">
           <button
             data-download-btn
@@ -146,31 +156,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
         @auth
           <a href="{{ route('juegos.mis_juegos') }}" class="text-white text-xl hover:text-purple-400 transition">Mis Juegos</a>
-          <a href="{{ route('profile.show') }}"         class="text-white text-xl hover:text-purple-400 transition">{{ Auth::user()->name }}</a>
+          <a href="{{ route('profile.show') }}" class="text-white text-xl hover:text-purple-400 transition">{{ Auth::user()->name }}</a>
           <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition">Cerrar sesión</button>
           </form>
         @else
-          <a href="{{ route('login') }}"    class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
+          <a href="{{ route('login') }}" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
           <a href="{{ route('register') }}" class="px-6 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">Registrarse</a>
         @endauth
       </nav>
     </div>
 
-    {{-- ——— ESCRITORIO: menú + descarga antes de auth ——— --}}
+    {{-- ESCRITORIO: menú original + descarga --}}
     <nav class="hidden md:flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
         <a href="{{ route('tienda.index') }}" class="hover:text-purple-400 transition">Tienda</a>
         <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-400 transition">Biblioteca</a>
-        <a href="{{ route('juegos.create') }}"   class="hover:text-purple-400 transition">Subir juego</a>
+        <a href="{{ route('juegos.create') }}" class="hover:text-purple-400 transition">Subir juego</a>
         @auth
           <a href="{{ route('juegos.mis_juegos') }}" class="hover:text-purple-400 transition">Mis Juegos</a>
         @endauth
       </div>
 
-      {{-- descarga (solo en navegador) --}}
+      {{-- boton descarga (solo navegador) --}}
       <div class="browser-only hidden">
         <button
           data-download-btn
@@ -191,34 +201,35 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       @else
         <div class="flex space-x-4">
-          <a href="{{ route('login') }}"    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
+          <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
           <a href="{{ route('register') }}" class="px-4 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">Registrarse</a>
         </div>
       @endauth
     </nav>
 
-    {{-- Saldo --}}
+    {{-- Saldo justo debajo de logout/perfil --}}
     @auth
       <div class="px-8 text-right text-purple-200 font-medium">
         Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
       </div>
     @endauth
 
-    <main class="flex-1 p-8 overflow-y-auto">{{ $slot }}</main>
+    <main class="flex-1 p-8 overflow-y-auto">
+      {{ $slot }}
+    </main>
 
     <footer class="text-center py-4 text-purple-400 text-sm bg-gradient-to-t from-black via-gray-900 to-transparent">
       © 2025 Gamora. Todos los derechos reservados.
     </footer>
+
   </div>
 
-  {{-- 3) Detección Electron vs Browser + SweetAlert2 --}}
+  {{-- 3) Detección Electron vs Browser y SweetAlert2 --}}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // si es Electron, muestra #electron-only
       if (window.electronAPI) {
         document.getElementById('electron-only')?.classList.remove('hidden');
       } else {
-        // si es navegador, muestra todo lo .browser-only y asocia SweetAlert
         document.querySelectorAll('.browser-only').forEach(el => el.classList.remove('hidden'));
         document.querySelectorAll('[data-download-btn]').forEach(btn => {
           btn.addEventListener('click', function() {
@@ -246,5 +257,4 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   </script>
-
 </div>

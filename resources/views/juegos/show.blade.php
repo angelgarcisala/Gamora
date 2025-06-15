@@ -99,7 +99,7 @@
             </a>
           @endif
 
-          {{-- Tags --}}
+          {{-- Tags populares --}}
           <div class="flex flex-wrap gap-2">
             @foreach($juego->etiquetas ?? [] as $et)
               <span class="px-3 py-1 bg-purple-700 rounded-full text-sm">{{ $et->nombre }}</span>
@@ -127,7 +127,7 @@
               </div>
 
               {{-- Browser: mensaje + botón descarga --}}
-              <div id="browser-only" class="hidden space-y-2 text-center">
+              <div class="browser-only hidden space-y-2 text-center">
                 <p class="text-yellow-300">
                   No puedes jugar desde aquí. Para acceder al juego, descarga Gamora Desktop:
                 </p>
@@ -144,7 +144,6 @@
         </div>
       </div>
 
-      {{-- … cualquier otra sección adicional … --}}
     </div>
   </x-self.base>
 </x-app-layout>
