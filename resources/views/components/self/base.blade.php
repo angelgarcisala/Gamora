@@ -17,6 +17,7 @@
         transform: none !important;
         transition: none !important;
       }
+      /* Bloquea todo excepto el enlace del logo */
       #logo-container, #logo-container * { pointer-events: none !important; }
       #logo-link, #logo-link *       { pointer-events: auto  !important; }
     `;
@@ -29,36 +30,36 @@
 {{-- 2) Animación del logo en DOMContentLoaded --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const key         = 'logoAnimated';
-    const logoCont    = document.getElementById('logo-container');
-    const uiContainer = document.getElementById('ui-container');
-    const svgWrapper  = document.getElementById('logo-svg');
-    const initialScale= 3, finalScale=0.5;
-    const movePctX    = 0.4, movePctY=0.4;
-    const waitBefore  = 4000, moveDuration=1200;
-    let moved=false, resizeTO;
+    const key          = 'logoAnimated';
+    const logoCont     = document.getElementById('logo-container');
+    const uiContainer  = document.getElementById('ui-container');
+    const svgWrapper   = document.getElementById('logo-svg');
+    const initialScale = 3, finalScale = 0.5;
+    const movePctX     = 0.4, movePctY   = 0.4;
+    const waitBefore   = 4000, moveDuration = 1200;
+    let moved = false, resizeTO;
 
     function finalTransform(){
-      return { tx: -window.innerWidth*movePctX, ty: -window.innerHeight*movePctY };
+      return { tx: -window.innerWidth * movePctX, ty: -window.innerHeight * movePctY };
     }
     function animateToCorner(){
       const c = finalTransform();
-      svgWrapper.style.transition = 'transform '+moveDuration+'ms ease-in-out';
-      svgWrapper.style.transform  = 'translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
+      svgWrapper.style.transition = 'transform ' + moveDuration + 'ms ease-in-out';
+      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
     }
-    function stopBlocking(){ logoCont.style.pointerEvents='none'; }
+    function stopBlocking(){ logoCont.style.pointerEvents = 'none'; }
 
     if (sessionStorage.getItem(key)) {
-      moved=true;
+      moved = true;
       const c = finalTransform();
-      svgWrapper.style.transition='none';
-      svgWrapper.style.transform='translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
+      svgWrapper.style.transition = 'none';
+      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
       stopBlocking();
     } else {
-      svgWrapper.style.transform='scale('+initialScale+')';
+      svgWrapper.style.transform = 'scale(' + initialScale + ')';
       setTimeout(function(){
         animateToCorner();
-        moved=true;
+        moved = true;
         setTimeout(function(){
           uiContainer.classList.replace('opacity-0','opacity-100');
           uiContainer.classList.replace('translate-y-10','translate-y-0');
@@ -70,15 +71,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('resize', function(){
       if (!moved) return;
-      logoCont.style.pointerEvents='auto';
+      logoCont.style.pointerEvents = 'auto';
       animateToCorner();
       clearTimeout(resizeTO);
-      resizeTO=setTimeout(stopBlocking, moveDuration+100);
+      resizeTO = setTimeout(stopBlocking, moveDuration + 100);
     });
 
-    const dashUrl='{{ route("dashboard") }}';
+    const dashUrl = '{{ route("dashboard") }}';
     svgWrapper.addEventListener('click', function(){
-      if (sessionStorage.getItem(key)) window.location=dashUrl;
+      if (sessionStorage.getItem(key)) window.location = dashUrl;
     });
 });
 </script>
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div id="ui-container" class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-    {{-- móvil: hamburguesa --}}
+    {{-- ——— MÓVIL: hamburguesa ——— --}}
     <div class="flex items-center justify-end px-8 py-4 md:hidden">
       <button id="menu-toggle" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -115,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </button>
     </div>
 
-    {{-- móvil: drawer --}}
+    {{-- ——— MÓVIL: drawer ——— --}}
     <div id="mobile-drawer"
          class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-50 md:hidden">
       <div class="flex justify-end p-4">
@@ -127,52 +128,56 @@ document.addEventListener('DOMContentLoaded', function() {
         </button>
       </div>
       <nav class="flex flex-col items-center space-y-6 mt-8">
-        <a href="{{ route('dashboard') }}" class="text-white text-xl hover:text-purple-400 transition">Inicio</a>
+        <a href="{{ route('dashboard') }}"   class="text-white text-xl hover:text-purple-400 transition">Inicio</a>
         <a href="{{ route('tienda.index') }}" class="text-white text-xl hover:text-purple-400 transition">Tienda</a>
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
-        <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
+        <a href="{{ route('juegos.create') }}"   class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- descarga (solo navegador) --}}
-        <div id="browser-only" class="hidden">
-          <button id="download-btn-mobile"
-                  data-url="{{ $downloadUrl }}"
-                  class="text-white text-xl hover:text-green-300 transition">
-            Descargar Desktop
+        {{-- descarga (solo en navegador) --}}
+        <div class="browser-only hidden">
+          <button
+            data-download-btn
+            data-url="{{ $downloadUrl }}"
+            class="text-white text-xl hover:text-green-300 transition"
+          >
+            Descargar Gamora Desktop
           </button>
         </div>
 
         @auth
           <a href="{{ route('juegos.mis_juegos') }}" class="text-white text-xl hover:text-purple-400 transition">Mis Juegos</a>
-          <a href="{{ route('profile.show') }}" class="text-white text-xl hover:text-purple-400 transition">{{ Auth::user()->name }}</a>
+          <a href="{{ route('profile.show') }}"         class="text-white text-xl hover:text-purple-400 transition">{{ Auth::user()->name }}</a>
           <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition">Cerrar sesión</button>
           </form>
         @else
-          <a href="{{ route('login') }}" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
+          <a href="{{ route('login') }}"    class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
           <a href="{{ route('register') }}" class="px-6 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">Registrarse</a>
         @endauth
       </nav>
     </div>
 
-    {{-- escritorio: menú + descarga antes de auth --}}
+    {{-- ——— ESCRITORIO: menú + descarga antes de auth ——— --}}
     <nav class="hidden md:flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
         <a href="{{ route('tienda.index') }}" class="hover:text-purple-400 transition">Tienda</a>
         <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-400 transition">Biblioteca</a>
-        <a href="{{ route('juegos.create') }}" class="hover:text-purple-400 transition">Subir juego</a>
+        <a href="{{ route('juegos.create') }}"   class="hover:text-purple-400 transition">Subir juego</a>
         @auth
           <a href="{{ route('juegos.mis_juegos') }}" class="hover:text-purple-400 transition">Mis Juegos</a>
         @endauth
       </div>
 
-      {{-- descarga (solo navegador) --}}
-      <div id="browser-only" class="hidden">
-        <button id="download-btn-desktop"
-                data-url="{{ $downloadUrl }}"
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
-          Descargar Desktop
+      {{-- descarga (solo en navegador) --}}
+      <div class="browser-only hidden">
+        <button
+          data-download-btn
+          data-url="{{ $downloadUrl }}"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
+        >
+          Descargar Gamora Desktop
         </button>
       </div>
 
@@ -186,13 +191,13 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       @else
         <div class="flex space-x-4">
-          <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
+          <a href="{{ route('login') }}"    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Iniciar sesión</a>
           <a href="{{ route('register') }}" class="px-4 py-2 border border-indigo-600 hover:bg-indigo-50 text-indigo-600 rounded-lg transition">Registrarse</a>
         </div>
       @endauth
     </nav>
 
-    {{-- saldo --}}
+    {{-- Saldo --}}
     @auth
       <div class="px-8 text-right text-purple-200 font-medium">
         Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
@@ -206,58 +211,40 @@ document.addEventListener('DOMContentLoaded', function() {
     </footer>
   </div>
 
-  {{-- 3) Script para drawer, SweetAlert2, confirmación y detección Electron/Browser --}}
+  {{-- 3) Detección Electron vs Browser + SweetAlert2 --}}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const toggle   = document.getElementById('menu-toggle');
-      const drawer   = document.getElementById('mobile-drawer');
-      const closeBtn = document.getElementById('drawer-close');
-      const btnDesk  = document.getElementById('download-btn-desktop');
-      const btnMob   = document.getElementById('download-btn-mobile');
-
-      // drawer móvil
-      if (toggle && drawer && closeBtn) {
-        toggle.addEventListener('click', function() {
-          drawer.classList.remove('-translate-y-full');
-        });
-        closeBtn.addEventListener('click', function() {
-          drawer.classList.add('-translate-y-full');
-        });
-      }
-
-      // confirmDownload
-      function confirmDownload(url) {
-        Swal.fire({
-          title: '¿Confirmas la descarga?',
-          text: 'Se descargará el instalador de Gamora Desktop.',
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonText: 'Sí, descargar',
-          cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#7c3aed',
-          cancelButtonColor: '#6b7280',
-          customClass: {
-            popup:   'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
-            title:   'text-2xl font-bold mb-2',
-            content: 'text-base'
-          }
-        }).then(function(result) {
-          if (result.isConfirmed) window.location.href = url;
-        });
-      }
-
-      // DETECCIÓN Electron vs Browser
+      // si es Electron, muestra #electron-only
       if (window.electronAPI) {
         document.getElementById('electron-only')?.classList.remove('hidden');
       } else {
-        document.getElementById('browser-only')?.classList.remove('hidden');
-        if (btnDesk) btnDesk.addEventListener('click', function() {
-          confirmDownload(btnDesk.getAttribute('data-url'));
-        });
-        if (btnMob) btnMob.addEventListener('click', function() {
-          confirmDownload(btnMob.getAttribute('data-url'));
+        // si es navegador, muestra todo lo .browser-only y asocia SweetAlert
+        document.querySelectorAll('.browser-only').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('[data-download-btn]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            Swal.fire({
+              title: '¿Confirmas la descarga?',
+              text: 'Se descargará el instalador de Gamora Desktop.',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, descargar',
+              cancelButtonText: 'Cancelar',
+              confirmButtonColor: '#7c3aed',
+              cancelButtonColor: '#6b7280',
+              customClass: {
+                popup:   'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
+                title:   'text-2xl font-bold mb-2',
+                content: 'text-base'
+              }
+            }).then(function(result) {
+              if (result.isConfirmed) {
+                window.location.href = btn.getAttribute('data-url');
+              }
+            });
+          });
         });
       }
     });
   </script>
+
 </div>

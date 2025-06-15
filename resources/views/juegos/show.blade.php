@@ -62,26 +62,25 @@
             @endcan
 
             {{-- Jugar / Descargar --}}
-            @can('jugar', $juego)
-              {{-- En Electron: el botón de Livewire --}}
-              <div id="electron-only" class="hidden">
-                @livewire('boton-descarga-juego', ['juego' => $juego])
-              </div>
+@can('jugar', $juego)
+  <div id="electron-only" class="hidden">
+    {{-- tu boton Livewire aquí --}}
+  </div>
 
-              {{-- En Browser: mensaje + botón de descarga --}}
-              <div id="browser-only" class="hidden space-y-2 text-center">
-                <p class="text-yellow-300">
-                  No puedes jugar desde aquí. Para acceder al juego, descarga Gamora Desktop:
-                </p>
-                <button
-                  id="download-btn-page"
-                  data-url="{{ Storage::disk('s3')->url('download/Gamora Setup 1.0.0.exe') }}"
-                  class="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl shadow-lg transition"
-                >
-                  Descargar Gamora Desktop
-                </button>
-              </div>
-            @endcan
+  <div class="browser-only hidden text-center space-y-2">
+    <p class="text-yellow-300">
+      No puedes jugar desde aquí. Para acceder al juego, descarga Gamora Desktop:
+    </p>
+    <button
+      data-download-btn
+      data-url="{{ Storage::disk('s3')->url('download/Gamora Setup 1.0.0.exe') }}"
+      class="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl shadow-lg transition"
+    >
+      Descargar Gamora Desktop
+    </button>
+  </div>
+@endcan
+
 
           </div>
         </div>
