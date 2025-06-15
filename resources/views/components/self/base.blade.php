@@ -1,25 +1,22 @@
 {{-- resources/views/components/self/base.blade.php --}}
 @props([])
 
-{{-- 1) Pre-pintado: pausa animaciones si ya vimos el logo --}}
+{{-- 1) Pre-pintado: pausa animaciones del logo si ya lo hemos visto --}}
 <script>
 (function(){
     const key = 'logoAnimated';
     if (!sessionStorage.getItem(key)) return;
     const css = `
-      /* Pausar animaciones internas del SVG */
       #logo-svg, #logo-svg * {
         animation-play-state: paused !important;
         animation-fill-mode: forwards !important;
         animation-delay: -9999s !important;
       }
-      /* Mostrar la UI sin delay */
       #ui-container {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
       }
-      /* Block pointer-events excepto el enlace */
       #logo-container, #logo-container * { pointer-events: none !important; }
       #logo-link, #logo-link *       { pointer-events: auto  !important; }
     `;
@@ -29,7 +26,7 @@
 })();
 </script>
 
-{{-- 2) Animación en DOMContentLoaded --}}
+{{-- 2) Animación del logo en DOMContentLoaded --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const key         = 'logoAnimated';
@@ -37,23 +34,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const uiContainer = document.getElementById('ui-container');
     const svgWrapper  = document.getElementById('logo-svg');
     const initialScale= 3, finalScale=0.5;
-    const movePctX    = 0.4, movePctY   = 0.4;
+    const movePctX    = 0.4, movePctY=0.4;
     const waitBefore  = 4000, moveDuration=1200;
     let moved=false, resizeTO;
 
-    function finalTransform() {
-      return { tx:-window.innerWidth*movePctX, ty:-window.innerHeight*movePctY };
+    function finalTransform(){
+      return { tx: -window.innerWidth*movePctX, ty: -window.innerHeight*movePctY };
     }
-    function animateToCorner() {
+    function animateToCorner(){
       const c = finalTransform();
-      svgWrapper.style.transition='transform '+moveDuration+'ms ease-in-out';
-      svgWrapper.style.transform='translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
+      svgWrapper.style.transition = 'transform '+moveDuration+'ms ease-in-out';
+      svgWrapper.style.transform  = 'translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
     }
-    function stopBlocking() { logoCont.style.pointerEvents='none'; }
+    function stopBlocking(){ logoCont.style.pointerEvents='none'; }
 
     if (sessionStorage.getItem(key)) {
       moved=true;
-      const c=finalTransform();
+      const c = finalTransform();
       svgWrapper.style.transition='none';
       svgWrapper.style.transform='translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
       stopBlocking();
@@ -76,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
       logoCont.style.pointerEvents='auto';
       animateToCorner();
       clearTimeout(resizeTO);
-      resizeTO = setTimeout(stopBlocking, moveDuration+100);
+      resizeTO=setTimeout(stopBlocking, moveDuration+100);
     });
 
     const dashUrl='{{ route("dashboard") }}';
@@ -108,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div id="ui-container" class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-    {{-- MÓVIL: botón hamburguesa --}}
+    {{-- móvil: hamburguesa --}}
     <div class="flex items-center justify-end px-8 py-4 md:hidden">
       <button id="menu-toggle" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -118,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </button>
     </div>
 
-    {{-- MÓVIL: drawer --}}
+    {{-- móvil: drawer --}}
     <div id="mobile-drawer"
          class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-50 md:hidden">
       <div class="flex justify-end p-4">
@@ -135,8 +132,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
         <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- descarga (Browser only) --}}
-        <div class="browser-only hidden">
+        {{-- descarga (solo navegador) --}}
+        <div id="browser-only" class="hidden">
           <button id="download-btn-mobile"
                   data-url="{{ $downloadUrl }}"
                   class="text-white text-xl hover:text-green-300 transition">
@@ -158,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </nav>
     </div>
 
-    {{-- ESCRITORIO: menú original + descarga antes de auth --}}
+    {{-- escritorio: menú + descarga antes de auth --}}
     <nav class="hidden md:flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
@@ -170,8 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
         @endauth
       </div>
 
-      {{-- descarga (Browser only) --}}
-      <div class="browser-only hidden">
+      {{-- descarga (solo navegador) --}}
+      <div id="browser-only" class="hidden">
         <button id="download-btn-desktop"
                 data-url="{{ $downloadUrl }}"
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
@@ -195,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
       @endauth
     </nav>
 
-    {{-- Saldo debajo --}}
+    {{-- saldo --}}
     @auth
       <div class="px-8 text-right text-purple-200 font-medium">
         Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
@@ -209,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </footer>
   </div>
 
-  {{-- 3) Script drawer + SweetAlert2 + detección Electron/Browser --}}
+  {{-- 3) Script para drawer, SweetAlert2, confirmación y detección Electron/Browser --}}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const toggle   = document.getElementById('menu-toggle');
@@ -217,7 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const closeBtn = document.getElementById('drawer-close');
       const btnDesk  = document.getElementById('download-btn-desktop');
       const btnMob   = document.getElementById('download-btn-mobile');
-      const browserEls = document.querySelectorAll('.browser-only');
 
       // drawer móvil
       if (toggle && drawer && closeBtn) {
@@ -239,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
           confirmButtonText: 'Sí, descargar',
           cancelButtonText: 'Cancelar',
           confirmButtonColor: '#7c3aed',
-          cancelButtonColor:  '#6b7280',
+          cancelButtonColor: '#6b7280',
           customClass: {
             popup:   'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
             title:   'text-2xl font-bold mb-2',
@@ -250,12 +246,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      // Electron vs Browser
+      // DETECCIÓN Electron vs Browser
       if (window.electronAPI) {
         document.getElementById('electron-only')?.classList.remove('hidden');
       } else {
-        // mostramos buttons descarga
-        browserEls.forEach(el => el.classList.remove('hidden'));
+        document.getElementById('browser-only')?.classList.remove('hidden');
         if (btnDesk) btnDesk.addEventListener('click', function() {
           confirmDownload(btnDesk.getAttribute('data-url'));
         });
