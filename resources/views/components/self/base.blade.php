@@ -1,7 +1,7 @@
 {{-- resources/views/components/self/base.blade.php --}}
 @props([])
 
-{{-- 1) Pre-pintado: si ya vimos el logo, pausamos internals y mostramos la UI --}}
+{{-- 1) Pre-pintado: pausa animaciones si ya vimos el logo --}}
 <script>
 (function(){
     const key = 'logoAnimated';
@@ -19,14 +19,9 @@
         transform: none !important;
         transition: none !important;
       }
-      /* Wrapper bloquea todo menos el enlace */
-      #logo-container, #logo-container * {
-        pointer-events: none !important;
-      }
-      /* El enlace dentro de #logo-container debe ser clicable */
-      #logo-link, #logo-link * {
-        pointer-events: auto !important;
-      }
+      /* Block pointer-events excepto el enlace */
+      #logo-container, #logo-container * { pointer-events: none !important; }
+      #logo-link, #logo-link *       { pointer-events: auto  !important; }
     `;
     const st = document.createElement('style');
     st.innerHTML = css;
@@ -41,37 +36,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoCont    = document.getElementById('logo-container');
     const uiContainer = document.getElementById('ui-container');
     const svgWrapper  = document.getElementById('logo-svg');
-    const initialScale  = 3, finalScale   = 0.5;
-    const movePctX      = 0.4, movePctY    = 0.4;
-    const waitBefore    = 4000, moveDuration = 1200;
-    let moved = false, resizeTO;
+    const initialScale= 3, finalScale=0.5;
+    const movePctX    = 0.4, movePctY   = 0.4;
+    const waitBefore  = 4000, moveDuration=1200;
+    let moved=false, resizeTO;
 
     function finalTransform() {
-      return {
-        tx: -(window.innerWidth * movePctX),
-        ty: -(window.innerHeight * movePctY)
-      };
+      return { tx:-window.innerWidth*movePctX, ty:-window.innerHeight*movePctY };
     }
     function animateToCorner() {
       const c = finalTransform();
-      svgWrapper.style.transition = 'transform ' + moveDuration + 'ms ease-in-out';
-      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
+      svgWrapper.style.transition='transform '+moveDuration+'ms ease-in-out';
+      svgWrapper.style.transform='translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
     }
-    function stopBlocking() {
-      logoCont.style.pointerEvents = 'none';
-    }
+    function stopBlocking() { logoCont.style.pointerEvents='none'; }
 
     if (sessionStorage.getItem(key)) {
-      moved = true;
-      const c = finalTransform();
-      svgWrapper.style.transition = 'none';
-      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
+      moved=true;
+      const c=finalTransform();
+      svgWrapper.style.transition='none';
+      svgWrapper.style.transform='translate('+c.tx+'px,'+c.ty+'px) scale('+finalScale+')';
       stopBlocking();
     } else {
-      svgWrapper.style.transform = 'scale(' + initialScale + ')';
+      svgWrapper.style.transform='scale('+initialScale+')';
       setTimeout(function(){
         animateToCorner();
-        moved = true;
+        moved=true;
         setTimeout(function(){
           uiContainer.classList.replace('opacity-0','opacity-100');
           uiContainer.classList.replace('translate-y-10','translate-y-0');
@@ -83,20 +73,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('resize', function(){
       if (!moved) return;
-      logoCont.style.pointerEvents = 'auto';
+      logoCont.style.pointerEvents='auto';
       animateToCorner();
       clearTimeout(resizeTO);
-      resizeTO = setTimeout(stopBlocking, moveDuration + 100);
+      resizeTO = setTimeout(stopBlocking, moveDuration+100);
     });
 
-    const dashUrl = '{{ route("dashboard") }}';
+    const dashUrl='{{ route("dashboard") }}';
     svgWrapper.addEventListener('click', function(){
-      if (sessionStorage.getItem(key)) window.location = dashUrl;
+      if (sessionStorage.getItem(key)) window.location=dashUrl;
     });
 });
 </script>
 
-{{-- Incluimos SweetAlert2 --}}
+{{-- SweetAlert2 --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @php
@@ -145,8 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
         <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- descarga móvil (Browser only) --}}
-        <div id="browser-only-mobile" class="hidden">
+        {{-- descarga (Browser only) --}}
+        <div class="browser-only hidden">
           <button id="download-btn-mobile"
                   data-url="{{ $downloadUrl }}"
                   class="text-white text-xl hover:text-green-300 transition">
@@ -180,8 +170,8 @@ document.addEventListener('DOMContentLoaded', function() {
         @endauth
       </div>
 
-      {{-- descarga escritorio (Browser only) --}}
-      <div id="browser-only-desktop" class="hidden">
+      {{-- descarga (Browser only) --}}
+      <div class="browser-only hidden">
         <button id="download-btn-desktop"
                 data-url="{{ $downloadUrl }}"
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
@@ -205,30 +195,29 @@ document.addEventListener('DOMContentLoaded', function() {
       @endauth
     </nav>
 
-    {{-- Saldo justo debajo de logout/perfil --}}
+    {{-- Saldo debajo --}}
     @auth
       <div class="px-8 text-right text-purple-200 font-medium">
         Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
       </div>
     @endauth
 
-    <main class="flex-1 p-8 overflow-y-auto">
-      {{ $slot }}
-    </main>
+    <main class="flex-1 p-8 overflow-y-auto">{{ $slot }}</main>
 
     <footer class="text-center py-4 text-purple-400 text-sm bg-gradient-to-t from-black via-gray-900 to-transparent">
       © 2025 Gamora. Todos los derechos reservados.
     </footer>
   </div>
 
-  {{-- 3) Script para drawer, SweetAlert2, confirmación y detección Electron/Browser --}}
+  {{-- 3) Script drawer + SweetAlert2 + detección Electron/Browser --}}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const toggle    = document.getElementById('menu-toggle');
-      const drawer    = document.getElementById('mobile-drawer');
-      const closeBtn  = document.getElementById('drawer-close');
-      const btnDesk   = document.getElementById('download-btn-desktop');
-      const btnMob    = document.getElementById('download-btn-mobile');
+      const toggle   = document.getElementById('menu-toggle');
+      const drawer   = document.getElementById('mobile-drawer');
+      const closeBtn = document.getElementById('drawer-close');
+      const btnDesk  = document.getElementById('download-btn-desktop');
+      const btnMob   = document.getElementById('download-btn-mobile');
+      const browserEls = document.querySelectorAll('.browser-only');
 
       // drawer móvil
       if (toggle && drawer && closeBtn) {
@@ -249,11 +238,11 @@ document.addEventListener('DOMContentLoaded', function() {
           showCancelButton: true,
           confirmButtonText: 'Sí, descargar',
           cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#7c3aed', // purple-600
-          cancelButtonColor:  '#6b7280', // gray-500
+          confirmButtonColor: '#7c3aed',
+          cancelButtonColor:  '#6b7280',
           customClass: {
-            popup: 'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
-            title: 'text-2xl font-bold mb-2',
+            popup:   'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
+            title:   'text-2xl font-bold mb-2',
             content: 'text-base'
           }
         }).then(function(result) {
@@ -261,12 +250,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      // DETECCIÓN Electron vs Browser
+      // Electron vs Browser
       if (window.electronAPI) {
         document.getElementById('electron-only')?.classList.remove('hidden');
       } else {
-        document.getElementById('browser-only-mobile')?.classList.remove('hidden');
-        document.getElementById('browser-only-desktop')?.classList.remove('hidden');
+        // mostramos buttons descarga
+        browserEls.forEach(el => el.classList.remove('hidden'));
         if (btnDesk) btnDesk.addEventListener('click', function() {
           confirmDownload(btnDesk.getAttribute('data-url'));
         });
@@ -276,5 +265,4 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   </script>
-
 </div>
