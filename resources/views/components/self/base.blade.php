@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoCont    = document.getElementById('logo-container');
     const uiContainer = document.getElementById('ui-container');
     const svgWrapper  = document.getElementById('logo-svg');
-    const initialScale  = 3, finalScale = 0.5;
-    const movePctX      = 0.4, movePctY = 0.4;
+    const initialScale  = 3, finalScale   = 0.5;
+    const movePctX      = 0.4, movePctY    = 0.4;
     const waitBefore    = 4000, moveDuration = 1200;
     let moved = false, resizeTO;
 
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div id="ui-container" class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-    {{-- —— MÓVIL: botón hamburguesa —— --}}
+    {{-- MÓVIL: botón hamburguesa --}}
     <div class="flex items-center justify-end px-8 py-4 md:hidden">
       <button id="menu-toggle" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </button>
     </div>
 
-    {{-- —— MÓVIL: drawer —— --}}
+    {{-- MÓVIL: drawer --}}
     <div id="mobile-drawer"
          class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-50 md:hidden">
       <div class="flex justify-end p-4">
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
         <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- —— Descarga móvil (Browser only) —— --}}
+        {{-- descarga móvil (Browser only) --}}
         <div id="browser-only-mobile" class="hidden">
           <button id="download-btn-mobile"
                   data-url="{{ $downloadUrl }}"
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </nav>
     </div>
 
-    {{-- —— ESCRITORIO: menú original + descarga antes de auth —— --}}
+    {{-- ESCRITORIO: menú original + descarga antes de auth --}}
     <nav class="hidden md:flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
@@ -180,11 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
         @endauth
       </div>
 
-      {{-- —— Descarga escritorio (Browser only) —— --}}
+      {{-- descarga escritorio (Browser only) --}}
       <div id="browser-only-desktop" class="hidden">
         <button id="download-btn-desktop"
                 data-url="{{ $downloadUrl }}"
-                class="px-4 py-2 bg-white text-purple-800 font-semibold rounded-lg shadow transition">
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
           Descargar Desktop
         </button>
       </div>
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      // confirmDownload con customClass Tailwind
+      // confirmDownload
       function confirmDownload(url) {
         Swal.fire({
           title: '¿Confirmas la descarga?',
@@ -249,12 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
           showCancelButton: true,
           confirmButtonText: 'Sí, descargar',
           cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#7c3aed', // purple-600
+          cancelButtonColor:  '#6b7280', // gray-500
           customClass: {
             popup: 'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
             title: 'text-2xl font-bold mb-2',
-            content: 'text-base',
-            confirmButton: 'bg-white text-purple-800 font-semibold px-4 py-2 rounded-lg shadow',
-            cancelButton: 'bg-gray-700 text-white font-medium px-4 py-2 rounded-lg ml-2'
+            content: 'text-base'
           }
         }).then(function(result) {
           if (result.isConfirmed) window.location.href = url;
@@ -267,10 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         document.getElementById('browser-only-mobile')?.classList.remove('hidden');
         document.getElementById('browser-only-desktop')?.classList.remove('hidden');
-      }
-
-      // Listeners sólo en Browser
-      if (!window.electronAPI) {
         if (btnDesk) btnDesk.addEventListener('click', function() {
           confirmDownload(btnDesk.getAttribute('data-url'));
         });
@@ -280,4 +276,5 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   </script>
+
 </div>
