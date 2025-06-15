@@ -169,7 +169,6 @@ class JuegoController extends Controller
         }
 
         // 5) Guardar cambios del juego
-        $juego->titulo            = $request->input('titulo');
         $juego->descripcion       = $request->input('descripcion');
         $juego->fecha_lanzamiento = $request->input('fecha_lanzamiento');
         $juego->precio            = $request->input('precio');

@@ -109,7 +109,14 @@
 
             // Mostrar un solo aviso si se excedió el límite de imágenes
             if (excesoImagenes) {
-                alert("No puedes tener más de 4 imágenes en total.");
+                Swal.fire({
+                    title: "Límite alcanzado",
+                    text: "No puedes tener más de 4 imágenes en total.",
+                    icon: "warning",
+                    confirmButtonColor: "#8b5cf6", // morado de tu paleta
+                    background: "#1f1f1f",
+                    color: "#e0e0ff"
+                    });
             }
 
             this.$refs.mediaInput.value = null; // permitir reseleccionar mismos archivos
