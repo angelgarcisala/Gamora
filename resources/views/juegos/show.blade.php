@@ -91,12 +91,26 @@
             {{ $juego->editor }}
           </div>
 
-          {{-- Editar (si eres desarrollador) --}}
+          {{-- Editar y Eliminar (si eres desarrollador) --}}
           @if(Auth::user()->name === $juego->desarrollador)
-            <a href="{{ route('juegos.edit', $juego) }}"
-               class="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition">
-              Editar juego
-            </a>
+            <div class="flex space-x-4">
+              <a href="{{ route('juegos.edit', $juego) }}"
+                 class="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition">
+                Editar juego
+              </a>
+
+              <form method="POST"
+                    action="{{ route('juegos.destroy', $juego) }}"
+                    class="delete-form inline"
+              >
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="inline-block px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-2xl transition">
+                  Eliminar juego
+                </button>
+              </form>
+            </div>
           @endif
 
           {{-- Tags populares --}}
@@ -110,7 +124,13 @@
           <div class="mt-6 space-y-4">
             {{-- Comprar --}}
             @can('comprar', $juego)
-              <form action="{{ route('juegos.comprar', $juego) }}" method="POST">
+              <form 
+                action="{{ route('juegos.comprar', $juego) }}" 
+                method="POST"
+                class="buy-form"
+                data-price="{{ $juego->precio }}"
+                data-balance="{{ auth()->user()->sueldo }}"
+              >
                 @csrf
                 <button type="submit"
                         class="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-2xl shadow-lg transition">
@@ -146,4 +166,56 @@
 
     </div>
   </x-self.base>
+
+  {{-- SweetAlert delete confirmation --}}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Confirmación para eliminar
+      document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Al eliminar este juego, se reembolsará a todos los compradores.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#6b7280',
+            customClass: {
+              popup:   'bg-gray-900 text-white rounded-2xl p-6',
+              title:   'text-2xl font-bold mb-2',
+              content: 'text-base'
+            }
+          }).then(result => {
+            if (result.isConfirmed) form.submit();
+          });
+        });
+      });
+
+      // Confirmación de compra con saldo insuficiente
+      document.querySelectorAll('.buy-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          const price   = parseFloat(form.dataset.price);
+          const balance = parseFloat(form.dataset.balance);
+
+          if (balance < price) {
+            e.preventDefault();
+            Swal.fire({
+              icon: 'error',
+              title: 'Saldo insuficiente',
+              text: 'No tienes suficiente dinero para comprar este juego.',
+              confirmButtonColor: '#7c3aed',
+              customClass: {
+                popup: 'bg-gray-900 text-white rounded-2xl p-6',
+                title: 'text-2xl font-bold mb-2',
+                content: 'text-base'
+              }
+            });
+          }
+        });
+      });
+    });
+  </script>
 </x-app-layout>

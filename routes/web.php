@@ -10,38 +10,32 @@ Route::get('/', function () {
     return view('dashboard', compact('juegos'));
 })->name('dashboard');
 
-Route::get('juegos/create', [JuegoController::class, 'create'])
-     ->name('juegos.create')
-     ->middleware('auth');
+Route::middleware('auth')->group(function () {
+    // Biblioteca
+    Route::get('biblioteca', [BibliotecaController::class, 'index'])
+         ->name('biblioteca.index');
 
-Route::get('juegos/mis-juegos', [JuegoController::class, 'mis_juegos'])
-     ->name('juegos.mis_juegos')
-     ->middleware('auth');
+    // Tienda pública y compra
+    Route::get('tienda', [JuegoController::class, 'tienda'])
+         ->name('tienda.index');
+    Route::post('juegos/{juego}/comprar', [BibliotecaController::class, 'store'])
+         ->name('juegos.comprar');
 
-Route::post('juegos', [JuegoController::class, 'store'])
-     ->name('juegos.store')
-     ->middleware('auth');
+    // CRUD de juegos para el desarrollador
+    Route::get('juegos/create', [JuegoController::class, 'create'])
+         ->name('juegos.create');
+    Route::post('juegos', [JuegoController::class, 'store'])
+         ->name('juegos.store');
+    Route::get('juegos/mis-juegos', [JuegoController::class, 'mis_juegos'])
+         ->name('juegos.mis_juegos');
+    Route::get('juegos/{juego}/edit', [JuegoController::class, 'edit'])
+         ->name('juegos.edit');
+    Route::put('juegos/{juego}', [JuegoController::class, 'update'])
+         ->name('juegos.update');
+    Route::delete('juegos/{juego}', [JuegoController::class, 'destroy'])
+         ->name('juegos.destroy');
 
-Route::post('juegos/{juego}/comprar', [BibliotecaController::class, 'store'])
-     ->name('juegos.comprar')
-     ->middleware('auth');
-
-Route::put('juegos/{juego}', [JuegoController::class, 'update'])
-     ->name('juegos.update')
-     ->middleware('auth');
-
-Route::get('juegos/{juego}/edit', [JuegoController::class, 'edit'])
-     ->name('juegos.edit')
-     ->middleware('auth');
-
-Route::get('biblioteca', [BibliotecaController::class, 'index'])
-     ->name('biblioteca.index')
-     ->middleware('auth');
-
-Route::get('/juegos/{juego}', [JuegoController::class, 'show'])
-     ->name('juegos.show')
-     ->middleware('auth');
-
-Route::get('tienda', [JuegoController::class, 'tienda'])
-     ->name('tienda.index')
-     ->middleware('auth');
+    // Ver un juego
+    Route::get('juegos/{juego}', [JuegoController::class, 'show'])
+         ->name('juegos.show');
+});
