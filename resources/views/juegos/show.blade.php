@@ -13,16 +13,15 @@
       <h1 class="text-3xl font-bold mb-4">{{ $juego->titulo }}</h1>
 
       @php
-        // Recogemos toda la galería de multimedia
         $media = $juego->multimedias;
       @endphp
 
       <div 
         x-data="{
           media: @js($media->map(fn($m) => [
-            'id'  => $m->id,
-            'tipo'=> $m->tipo,
-            'url' => asset($m->url),
+            'id'   => $m->id,
+            'tipo' => $m->tipo,
+            'url'  => asset($m->url),
           ])),
           selected: null,
           init() { this.selected = this.media[0] },
@@ -92,7 +91,7 @@
             {{ $juego->editor }}
           </div>
 
-          {{-- Editar si eres el desarrollador --}}
+          {{-- Editar (si eres desarrollador) --}}
           @if(Auth::user()->name === $juego->desarrollador)
             <a href="{{ route('juegos.edit', $juego) }}"
                class="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition">
@@ -100,12 +99,10 @@
             </a>
           @endif
 
-          {{-- Tags populares --}}
+          {{-- Tags --}}
           <div class="flex flex-wrap gap-2">
             @foreach($juego->etiquetas ?? [] as $et)
-              <span class="px-3 py-1 bg-purple-700 rounded-full text-sm">
-                {{ $et->nombre }}
-              </span>
+              <span class="px-3 py-1 bg-purple-700 rounded-full text-sm">{{ $et->nombre }}</span>
             @endforeach
           </div>
 
@@ -115,10 +112,8 @@
             @can('comprar', $juego)
               <form action="{{ route('juegos.comprar', $juego) }}" method="POST">
                 @csrf
-                <button
-                  type="submit"
-                  class="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-2xl shadow-lg transition"
-                >
+                <button type="submit"
+                        class="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-2xl shadow-lg transition">
                   Comprar por €{{ number_format($juego->precio, 2) }}
                 </button>
               </form>
@@ -126,12 +121,12 @@
 
             {{-- Jugar / Descargar --}}
             @can('jugar', $juego)
-              {{-- En Electron: boton Livewire --}}
+              {{-- Electron: botón Livewire --}}
               <div id="electron-only" class="hidden">
                 @livewire('boton-descarga-juego', ['juego' => $juego])
               </div>
 
-              {{-- En Browser: mensaje + botón descarga --}}
+              {{-- Browser: mensaje + botón descarga --}}
               <div id="browser-only" class="hidden space-y-2 text-center">
                 <p class="text-yellow-300">
                   No puedes jugar desde aquí. Para acceder al juego, descarga Gamora Desktop:
@@ -149,7 +144,7 @@
         </div>
       </div>
 
-      {{-- Aquí podrían ir reseñas, comentarios, etc. --}}
+      {{-- … cualquier otra sección adicional … --}}
     </div>
   </x-self.base>
 </x-app-layout>
