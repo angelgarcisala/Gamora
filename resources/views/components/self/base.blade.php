@@ -1,7 +1,7 @@
 {{-- resources/views/components/self/base.blade.php --}}
 @props([])
 
-{{-- 1) Pre-pintado: si ya vimos el logo, pausamos internals y mostramos la UI --}}
+{{-- 1) Pre-pintado: pausado de animaciones si ya vimos el logo --}}
 <script>
 (function(){
     const key = 'logoAnimated';
@@ -19,16 +19,9 @@
         transform: none !important;
         transition: none !important;
       }
-      /* Wrapper bloquea todo */
-      #logo-container,
-      #logo-container * {
-        pointer-events: none !important;
-      }
-      /* El enlace dentro de #logo-container debe ser clicable */
-      #logo-link,
-      #logo-link * {
-        pointer-events: auto !important;
-      }
+      /* Wrapper bloquea todo menos el enlace */
+      #logo-container, #logo-container * { pointer-events: none !important; }
+      #logo-link, #logo-link *     { pointer-events: auto  !important; }
     `;
     const st = document.createElement('style');
     st.innerHTML = css;
@@ -36,48 +29,42 @@
 })();
 </script>
 
-{{-- 2) Animación en DOMContentLoaded --}}
+{{-- 2) Animación inicial del logo --}}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const key         = 'logoAnimated';
-    const logoCont    = document.getElementById('logo-container');
-    const uiContainer = document.getElementById('ui-container');
-    const svgWrapper  = document.getElementById('logo-svg');
-
-    const initialScale = 3, finalScale = 0.5;
-    const movePctX     = 0.4, movePctY = 0.4;
-    const waitBefore   = 4000, moveDuration = 1200;
+document.addEventListener('DOMContentLoaded', function() {
+    const key        = 'logoAnimated';
+    const logoCont   = document.getElementById('logo-container');
+    const uiContainer= document.getElementById('ui-container');
+    const svgWrapper = document.getElementById('logo-svg');
+    const initialScale= 3, finalScale= 0.5;
+    const movePctX   = 0.4, movePctY   = 0.4;
+    const waitBefore = 4000, moveDuration= 1200;
     let moved = false, resizeTO;
 
-    function finalTransform() {
-      return {
-        tx: -(window.innerWidth * movePctX),
-        ty: -(window.innerHeight * movePctY)
-      };
+    function finalTransform(){
+      return { tx: -window.innerWidth * movePctX, ty: -window.innerHeight * movePctY };
     }
-
-    function animateToCorner() {
-      const { tx, ty } = finalTransform();
-      svgWrapper.style.transition = `transform ${moveDuration}ms ease-in-out`;
-      svgWrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
+    function animateToCorner(){
+      const c = finalTransform();
+      svgWrapper.style.transition = 'transform ' + moveDuration + 'ms ease-in-out';
+      svgWrapper.style.transform  = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
     }
-
-    function stopBlocking() {
+    function stopBlocking(){
       logoCont.style.pointerEvents = 'none';
     }
 
     if (sessionStorage.getItem(key)) {
       moved = true;
-      const { tx, ty } = finalTransform();
+      const c = finalTransform();
       svgWrapper.style.transition = 'none';
-      svgWrapper.style.transform  = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
+      svgWrapper.style.transform = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + finalScale + ')';
       stopBlocking();
     } else {
-      svgWrapper.style.transform = `scale(${initialScale})`;
-      setTimeout(() => {
+      svgWrapper.style.transform = 'scale(' + initialScale + ')';
+      setTimeout(function(){
         animateToCorner();
         moved = true;
-        setTimeout(() => {
+        setTimeout(function(){
           uiContainer.classList.replace('opacity-0','opacity-100');
           uiContainer.classList.replace('translate-y-10','translate-y-0');
           stopBlocking();
@@ -86,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, waitBefore);
     }
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', function(){
       if (!moved) return;
       logoCont.style.pointerEvents = 'auto';
       animateToCorner();
@@ -95,26 +82,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dashUrl = '{{ route("dashboard") }}';
-    svgWrapper.addEventListener('click', () => {
-      if (sessionStorage.getItem(key)) {
-        window.location = dashUrl;
-      }
+    svgWrapper.addEventListener('click', function(){
+      if (sessionStorage.getItem(key)) window.location = dashUrl;
     });
 });
 </script>
 
-{{-- Inclusión de SweetAlert2 --}}
+{{-- SweetAlert2 --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @php
   use Illuminate\Support\Facades\Storage;
-  $logo = Storage::disk('s3')->url('storage/media/Gamora-gradient-faster.svg');
+  $logo        = Storage::disk('s3')->url('storage/media/Gamora-gradient-faster.svg');
   $downloadUrl = Storage::disk('s3')->url('download/Gamora Setup 1.0.0.exe');
 @endphp
 
 <div class="relative w-screen h-screen overflow-hidden bg-steam-gradient">
 
-  {{-- SVG central animado --}}
+  {{-- SVG central --}}
   <div id="logo-container" class="absolute inset-0 flex items-center justify-center z-30 transition-opacity duration-300">
     <div id="logo-svg" class="transition-transform duration-1000 ease-in-out cursor-pointer">
       <a id="logo-link" href="{{ route('dashboard') }}">
@@ -125,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <div id="ui-container" class="absolute inset-0 flex flex-col opacity-0 translate-y-10 transition-all duration-1000 ease-in-out z-10">
 
-    {{-- ——— MÓVIL: botón hamburguesa ——— --}}
+    {{-- móvil: hamburguesa --}}
     <div class="flex items-center justify-end px-8 py-4 md:hidden">
       <button id="menu-toggle" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -135,9 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
     </div>
 
-    {{-- ——— MÓVIL: drawer off-canvas arriba ——— --}}
+    {{-- móvil: drawer --}}
     <div id="mobile-drawer"
-         class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-40 md:hidden">
+         class="fixed inset-0 bg-black bg-opacity-50 transform -translate-y-full transition-transform duration-300 ease-in-out z-50 md:hidden">
       <div class="flex justify-end p-4">
         <button id="drawer-close" class="text-white focus:outline-none">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -152,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="{{ route('biblioteca.index') }}" class="text-white text-xl hover:text-purple-400 transition">Biblioteca</a>
         <a href="{{ route('juegos.create') }}" class="text-white text-xl hover:text-purple-400 transition">Subir juego</a>
 
-        {{-- Enlace descarga móvil --}}
+        {{-- descarga móvil --}}
         <button id="download-btn-mobile"
                 data-url="{{ $downloadUrl }}"
                 class="text-white text-xl hover:text-green-300 transition">
@@ -173,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </nav>
     </div>
 
-    {{-- ——— ESCRITORIO: menú original + botón descarga antes de logout/iniciar ——— --}}
+    {{-- escritorio: menú + descarga antes de auth --}}
     <nav class="hidden md:flex items-center justify-end px-8 py-4 space-x-6">
       <div class="flex space-x-8 text-white font-semibold text-lg">
         <a href="{{ route('dashboard') }}" class="hover:text-purple-400 transition">Inicio</a>
@@ -185,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
         @endauth
       </div>
 
-      {{-- Enlace descarga desktop --}}
+      {{-- descarga escritorio --}}
       <button id="download-btn-desktop"
               data-url="{{ $downloadUrl }}"
-              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
+              class="px-4 py-2 bg-white text-purple-800 font-semibold rounded-lg shadow transition">
         Descargar Desktop
       </button>
 
@@ -208,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       @endauth
     </nav>
 
-    {{-- Saldo justo debajo de logout/perfil --}}
+    {{-- saldo --}}
     @auth
       <div class="px-8 text-right text-purple-200 font-medium">
         Saldo: €{{ number_format(auth()->user()->sueldo, 2) }}
@@ -224,50 +209,52 @@ document.addEventListener('DOMContentLoaded', () => {
     </footer>
   </div>
 
-  {{-- 3) Script para drawer, SweetAlert2, detección Browser/Electron --}}
+  {{-- 3) Script drawer + confirmación + ocultar en Electron --}}
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggle     = document.getElementById('menu-toggle');
-      const drawer     = document.getElementById('mobile-drawer');
-      const closeBtn   = document.getElementById('drawer-close');
-      const logoCont   = document.getElementById('logo-container');
-      const btnDesk    = document.getElementById('download-btn-desktop');
-      const btnMobile  = document.getElementById('download-btn-mobile');
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggle    = document.getElementById('menu-toggle');
+      const drawer    = document.getElementById('mobile-drawer');
+      const closeBtn  = document.getElementById('drawer-close');
+      const btnDesk   = document.getElementById('download-btn-desktop');
+      const btnMob    = document.getElementById('download-btn-mobile');
 
       // drawer móvil
       if (toggle && drawer && closeBtn) {
-        toggle.addEventListener('click', () => drawer.classList.remove('-translate-y-full'));
-        closeBtn.addEventListener('click', () => drawer.classList.add('-translate-y-full'));
+        toggle.addEventListener('click', function() {
+          drawer.classList.remove('-translate-y-full');
+        });
+        closeBtn.addEventListener('click', function() {
+          drawer.classList.add('-translate-y-full');
+        });
       }
 
-      // confirmación SweetAlert2
+      // confirmación con SweetAlert2 + customClass
       function confirmDownload(url) {
         Swal.fire({
           title: '¿Confirmas la descarga?',
           text: 'Se descargará el instalador de Gamora Desktop.',
           icon: 'question',
-          background: '#7c3aed',       // Fondo morado (purple-600)
-          color: '#fff',               // Texto en blanco
           showCancelButton: true,
           confirmButtonText: 'Sí, descargar',
           cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#6d28d9', // purple-700
-          cancelButtonColor: '#6b7280'   // gray-500
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = url;
+          customClass: {
+            popup: 'bg-gradient-to-br from-purple-800 to-purple-600 text-white rounded-2xl p-6',
+            title: 'text-2xl font-bold mb-2',
+            content: 'text-base',
+            confirmButton: 'bg-white text-purple-800 font-semibold px-4 py-2 rounded-lg shadow',
+            cancelButton: 'bg-gray-700 text-white font-medium px-4 py-2 rounded-lg ml-2'
           }
+        }).then(function(result) {
+          if (result.isConfirmed) window.location.href = url;
         });
-      } 
-      if (btnDesk)   btnDesk.addEventListener('click', () => confirmDownload(btnDesk.dataset.url));
-      if (btnMobile) btnMobile.addEventListener('click', () => confirmDownload(btnMobile.dataset.url));
-
-      // Detectar Browser vs Electron
-      if (window.electronAPI) {
-        document.getElementById('browser-only')?.classList.add('hidden');
-      } else {
-        document.getElementById('browser-only')?.classList.remove('hidden');
       }
+
+      if (btnDesk) btnDesk.addEventListener('click', function() {
+        if (!window.electronAPI) confirmDownload(btnDesk.getAttribute('data-url'));
+      });
+      if (btnMob) btnMob.addEventListener('click', function() {
+        if (!window.electronAPI) confirmDownload(btnMob.getAttribute('data-url'));
+      });
     });
   </script>
 </div>
