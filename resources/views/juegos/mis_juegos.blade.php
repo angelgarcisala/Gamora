@@ -29,11 +29,16 @@
               </a>
 
               {{-- Actions --}}
-              <div class="px-4 pb-4 flex justify-between">
+              <div class="px-4 pb-4 flex space-x-2">
                 @can('update', $juego)
                   <a href="{{ route('juegos.edit', $juego) }}"
                      class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition">
                     Editar
+                  </a>
+
+                  <a href="{{ route('anuncios.create', $juego) }}"
+                     class="px-3 py-1 bg-purple-500 hover:bg-purple-900 text-white text-sm rounded-lg transition">
+                    Añadir anuncio
                   </a>
                 @endcan
 
@@ -47,8 +52,7 @@
                     @method('DELETE')
                     <button
                       type="submit"
-                      class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-sm rounded-lg transition"
-                    >
+                      class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-sm rounded-lg transition">
                       Eliminar
                     </button>
                   </form>

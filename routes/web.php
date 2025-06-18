@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnuncioController;
 use App\Http\Controllers\BibliotecaController;
 use App\Http\Controllers\JuegoController;
 use App\Models\Juego;
@@ -38,4 +39,12 @@ Route::middleware('auth')->group(function () {
     // Ver un juego
     Route::get('juegos/{juego}', [JuegoController::class, 'show'])
          ->name('juegos.show');
+
+     // Mostrar formulario de creación de anuncio para un juego
+     Route::get('juegos/{juego}/anuncios/create', [AnuncioController::class, 'create'])
+          ->name('anuncios.create');
+
+     // Guardar anuncio
+     Route::post('juegos/{juego}/anuncios', [AnuncioController::class, 'store'])
+          ->name('anuncios.store');
 });

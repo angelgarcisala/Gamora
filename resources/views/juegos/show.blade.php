@@ -10,7 +10,38 @@
       </a>
 
       {{-- Título --}}
-      <h1 class="text-3xl font-bold mb-4">{{ $juego->titulo }}</h1>
+      <h1 class="text-3xl font-bold mb-6">{{ $juego->titulo }}</h1>
+
+      {{-- Filtrar anuncios activos según fecha --}}
+      @php
+        $activeAnuncios = $juego->anuncios->filter(fn($a) =>
+            (is_null($a->fecha_inicio) || $a->fecha_inicio->lte(now()))
+         && (is_null($a->fecha_fin)    || $a->fecha_fin->gte(now()))
+        );
+      @endphp
+
+      @if($activeAnuncios->isNotEmpty())
+        <section class="mb-8 space-y-4">
+          @foreach($activeAnuncios as $anuncio)
+            <div class="p-4 bg-gradient-to-r from-purple-500 to-purple-900 text-white rounded-lg shadow-lg">
+              <h2 class="text-xl font-semibold">{{ $anuncio->titulo }}</h2>
+              <p class="mt-1">{{ $anuncio->descripcion }}</p>
+              @if($anuncio->fecha_inicio || $anuncio->fecha_fin)
+                <p class="mt-2 text-sm">
+                  <span class="font-medium">Vigencia:</span>
+                  {{ $anuncio->fecha_inicio
+                       ? $anuncio->fecha_inicio->format('d/m/Y')
+                       : '—' }}
+                  —
+                  {{ $anuncio->fecha_fin
+                       ? $anuncio->fecha_fin->format('d/m/Y')
+                       : '—' }}
+                </p>
+              @endif
+            </div>
+          @endforeach
+        </section>
+      @endif
 
       @php
         $media = $juego->multimedias;
@@ -91,7 +122,7 @@
             {{ $juego->editor }}
           </div>
 
-          {{-- Editar y Eliminar (si eres desarrollador) --}}
+          {{-- Editar, Eliminar y Añadir Anuncio (si eres desarrollador) --}}
           @if(Auth::user()->name === $juego->desarrollador)
             <div class="flex space-x-4">
               <a href="{{ route('juegos.edit', $juego) }}"
@@ -110,6 +141,11 @@
                   Eliminar juego
                 </button>
               </form>
+
+              <a href="{{ route('anuncios.create', $juego) }}"
+                 class="inline-block px-4 py-2 bg-purple-500 hover:bg-purple-900 text-white font-semibold rounded-2xl transition">
+                Añadir anuncio
+              </a>
             </div>
           @endif
 
@@ -122,7 +158,6 @@
 
           {{-- Compra / Descarga --}}
           <div class="mt-6 space-y-4">
-            {{-- Comprar --}}
             @can('comprar', $juego)
               <form 
                 action="{{ route('juegos.comprar', $juego) }}" 
@@ -139,14 +174,11 @@
               </form>
             @endcan
 
-            {{-- Jugar / Descargar --}}
             @can('jugar', $juego)
-              {{-- Electron: botón Livewire --}}
               <div id="electron-only" class="hidden">
                 @livewire('boton-descarga-juego', ['juego' => $juego])
               </div>
 
-              {{-- Browser: mensaje + botón descarga --}}
               <div class="browser-only hidden space-y-2 text-center">
                 <p class="text-yellow-300">
                   No puedes jugar desde aquí. Para acceder al juego, descarga Gamora Desktop:
@@ -167,10 +199,9 @@
     </div>
   </x-self.base>
 
-  {{-- SweetAlert delete confirmation --}}
+  {{-- SweetAlert delete & compra confirmations --}}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Confirmación para eliminar
       document.querySelectorAll('.delete-form').forEach(form => {
         form.addEventListener('submit', function(e) {
           e.preventDefault();
@@ -194,7 +225,6 @@
         });
       });
 
-      // Confirmación de compra con saldo insuficiente
       document.querySelectorAll('.buy-form').forEach(form => {
         form.addEventListener('submit', function(e) {
           const price   = parseFloat(form.dataset.price);
